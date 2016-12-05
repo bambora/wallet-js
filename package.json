@@ -1,0 +1,38 @@
+{
+  "name": "wallet",
+  "version": "0.0.1",
+  "description": "Bambora Online JavaScript API for Wallet transactions",
+  "main": "dist/wallet.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "clean": "rimraf ./dist",
+    "start": "npm run clean && webpack-dev-server --hot",
+    "build": "npm run clean && webpack -d",
+    "ci-build": "npm run clean && npm install && webpack -p"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bambora/wallet.git"
+  },
+  "author": "Jesper Dalgas Zachariassen <jesper.zachariassen@bambora.com> (http://bambora.com)",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bambora/wallet/issues"
+  },
+  "homepage": "https://github.com/bambora/wallet#readme",
+  "dependencies": {
+    "@types/isomorphic-fetch": "0.0.31",
+    "es6-promise": "^4.0.5",
+    "isomorphic-fetch": "^2.2.1"
+  },
+  "devDependencies": {
+    "@types/es6-promise": "0.0.32",
+    "@types/isomorphic-fetch": "0.0.31",
+    "babel": "^6.5.2",
+    "rimraf": "^2.5.4",
+    "ts-loader": "^1.2.2",
+    "typescript": "^2.0.8",
+    "webpack": "^2.1.0-beta.27",
+    "webpack-dev-server": "^2.1.0-beta.9"
+  }
+}
