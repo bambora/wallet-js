@@ -6,3 +6,8 @@ export const masterPass = {
 export const mobilePay = {
     productionClient: "https://publicmobilepay.danskebank.com/P2O/MobilePay3/MobilePayOnline.aspx"
 }
+
+export const epayZero = {
+    walletApi: "https://wallet-v1.api.epay.eu",
+    testClient: "https://walletclient-v1.api.epay.eu"
+}

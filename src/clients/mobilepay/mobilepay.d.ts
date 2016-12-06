@@ -1,4 +1,4 @@
-interface IMobilePayRequest extends IGenericWalletRequest {
+interface IMobilePayRequestData extends IWalletRequestData {
 	SessionToken: string;
 	PhoneNumber?: string;
 }

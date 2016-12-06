@@ -1,27 +1,32 @@
 /// <reference path="../../wallet.d.ts" />
 /// <reference path="./masterpass.d.ts" />
-import {
-    endpoints,
-    WalletRequestType
-} from "../../";
+import * as endpoints from "../../endpoints";
+import { WalletRequestType }  from "../../request-types";
+import { WalletResponseTransformer }  from "../../response-transformers";
 
 
 @WalletRequestType("masterpass")
 export class MasterPassRequest implements IWalletRequest {
-    constructor(private options: IMasterPassRequest) { }
+    private _script: HTMLScriptElement;
+    private _preferredWindowState: IPreferredWindowState;
 
-    _script;
+    constructor(
+        private data: IMasterPassRequestData,
+        options?: IGenericWalletOptions
+    ) {
+        if (options && options.preferredWindowState) {
+            this._preferredWindowState = options.preferredWindowState;
+        }
+    }
 
     public initiate(): Promise<any> {
         const promise = this.loadScriptIfNotAlreadyLoaded()
             .then(() => this.sendRequest())
             .then(function onMasterPassLightboxRequestFulfilled(mpLightboxResponse) {
-                console.log(mpLightboxResponse);
-                // TODO: handle masterpass response
+                return mpLightboxResponse.mpstatus;
             })
             .catch(function onMasterPassLightboxRequestRejected(mpLightboxResponse) {
-                console.log(mpLightboxResponse);
-                // TODO: handle masterpass error
+                return new Error(mpLightboxResponse.mpstatus);
             });
 
         return promise;
@@ -30,13 +35,13 @@ export class MasterPassRequest implements IWalletRequest {
     private sendRequest(): Promise<any> {
         const promise = new Promise<any>((resolve, reject) => {
             MasterPass.client.checkout({
-                requestToken: this.options.requestToken,
-                callbackUrl: this.options.callbackUrl,
+                requestToken: this.data.requestToken,
+                callbackUrl: this.data.callbackUrl,
                 failureCallback: mpLightboxResponse => reject(mpLightboxResponse), // TODO: should be changed to instance of Error.
                 cancelCallback: mpLightboxResponse => reject(mpLightboxResponse),
                 successCallback: mpLightboxResponse => resolve(mpLightboxResponse),
-                merchantCheckoutId: this.options.merchantCheckoutId,
-                allowedCardTypes: this.options.allowedCardTypes,
+                merchantCheckoutId: this.data.merchantCheckoutId,
+                allowedCardTypes: this.data.allowedCardTypes,
                 version: "v6"
             });
         })
@@ -52,7 +57,7 @@ export class MasterPassRequest implements IWalletRequest {
                 this._script = this._script || document.createElement("script");
 
                 this._script.async = false;
-                this._script.src = endpoints.masterPass.productionClientApi;
+                this._script.src = endpoints.masterPass.sandboxClientApi;//productionClientApi;
 
                 this._script.onload = event => resolve(event);
                 this._script.onerror = event => reject(event);
@@ -66,5 +71,32 @@ export class MasterPassRequest implements IWalletRequest {
         })
 
         return promise;
+    }
+}
+
+
+@WalletResponseTransformer("masterpass")
+export class MasterPassResponseTransformer {
+    transform(response: IWalletSessionResponse): IValidWalletSessionResponse {
+        const validData = response.session.data.map(data => {
+            if(data.type === "array") {
+                return {
+                    type: data.type,
+                    key: data.key,
+                    value: data.value.split(",")
+                };
+            }
+
+            return data;
+        })
+
+        const validResponse: IValidWalletSessionResponse = {
+            session: {
+                walletname: response.session.walletname,
+                data: validData
+            }
+        };
+
+        return validResponse;
     }
 }

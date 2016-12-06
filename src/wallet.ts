@@ -1,20 +1,42 @@
 import { Promise } from "es6-promise";
-import * as fetch from "isomorphic-fetch";
 import {
+    endpoints,
     walletRequestTypes,
     MasterPassRequest,
-    MobilePayRequest
+    MobilePayRequest,
+    WalletService,
+    getWalletRequestType
 } from "./";
 
 
 export default class Wallet implements IWallet {
-    public open(sessionToken: string, options?: IGenericWalletOptions): Promise<any> { // TODO: should use generic options to make request
-        const walletType = "masterpass"; // TODO: should get from backend. 
-        const walletRequestType: IWalletRequestConstructable = walletRequestTypes[walletType];
-        const walletOptions: IGenericWalletRequest = {}; // TODO: get from backend and generate wallet type specific request.
-        const walletRequest: IWalletRequest = new walletRequestType(walletOptions);
+    public open(sessionId: string, options?: IGenericWalletOptions): Promise<any> {
+        const walletService = new WalletService(options);
+        const sessionPromise = walletService.getSession(sessionId);
 
-        return walletRequest.initiate();
+        sessionPromise.then(response => {
+            const walletRequestConstructable = getWalletRequestType(response.session.walletname);
+            const walletOptions = Wallet.getWalletOptions(response.session.data);
+            const walletRequest = new walletRequestConstructable(walletOptions, options);
+
+            return walletRequest.initiate();
+        })
+
+        sessionPromise.catch(function onGetSessionRejected(error) {
+            // handle error
+            return error;
+        });
+
+        return sessionPromise;
+    }
+
+    private static getWalletOptions(responseData: Array<IKeyValueType<any>>): IWalletRequestData {
+        const walletOptions = responseData.reduce((previous, current) => {
+            previous[current.key] = current.value;
+            return previous;
+        }, {} as IWalletRequestData);
+
+        return walletOptions;
     }
 }
 
@@ -22,23 +44,3 @@ if(window) {
     window.Bambora = window.Bambora || {};
     window.Bambora.Wallet = window.Bambora.Wallet || Wallet;
 }
-
-
-
-
-// Fetch is to be used to call Zero
-// fetch("https://merchant-v1.api.epay.eu/help").then(response => response.text()).then(ost => console.log(ost));
-
-
-
-// Wallet callback handling could be done as follows:
-//
-// const wallet = new Bambora.Wallet();
-//
-// wallet.open("a1b2c3d4e5f6", options)
-//    .then(function onFulfilled(response) => {
-//          // success handler
-//       })
-//    .catch(function onRejected(error) => {
-//          // failure/cancel handler
-//       });

@@ -1,15 +1,15 @@
 /// <reference path="../../wallet.d.ts" />
-/// <reference path="./mobilepay.d.ts" />
+/// <reference path="./test.d.ts" />
 import * as endpoints from "../../endpoints";
 import { WalletRequestType }  from "../../request-types";
 
 
-@WalletRequestType("mobilepay")
-export class MobilePayRequest implements IWalletRequest {
+@WalletRequestType("test")
+export class TestRequest implements IWalletRequest {
     private _preferredWindowState: IPreferredWindowState;
-
+    
     constructor(
-        private data: IMobilePayRequestData,
+        private data: ITestRequestData,
         options?: IGenericWalletOptions
     ) {
         if (options && options.preferredWindowState) {
@@ -20,7 +20,7 @@ export class MobilePayRequest implements IWalletRequest {
     public initiate(): Promise<any> {
         const form = document.createElement("form");
 
-        form.action = endpoints.mobilePay.productionClient;
+        form.action = endpoints.epayZero.testClient;
         form.method = "POST";
         form.target = "_self";
 
@@ -38,7 +38,7 @@ export class MobilePayRequest implements IWalletRequest {
         form.submit();
 
         return new Promise((resolve, reject) => {
-            // Implement mobile pay in overlay
+            // Implement overlay
         });
     }
 }

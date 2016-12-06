@@ -1,8 +1,16 @@
 export const walletRequestTypes = {};
 
 
+export function getWalletRequestType(walletName: string): IWalletRequestConstructable {
+    if(walletRequestTypes[walletName]) return walletRequestTypes[walletName];
+
+    throw new ReferenceError(`The wallet type "${walletName}" could not be found.`);
+}
+
+
+// Decorator
 export function WalletRequestType(walletName: string) {
-    return function(walletRequestClass: Function) {
-        walletRequestTypes[walletName] = walletRequestClass;
+    return function(walletRequestConstructable: IWalletRequestConstructable) {
+        walletRequestTypes[walletName] = walletRequestConstructable;
     }
 }

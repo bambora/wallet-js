@@ -1,4 +1,4 @@
-interface IMasterPassRequest extends IGenericWalletRequest {
+interface IMasterPassRequestData extends IWalletRequestData {
 	requestPairing?: boolean;
 	requestToken: string;
 	pairingRequestToken?: string;
@@ -16,7 +16,7 @@ interface IMasterPassClient {
 	addPaymentMethod(options: any): void;
 	addShippingAddress(options: any): void;
 	cardSecurity(options: any): void;
-	checkout(request: IMasterPassRequest): void;
+	checkout(request: IMasterPassRequestData): void;
 	checkoutButton(options: any): void;
 	connect(options: any): void;
 	connectButton(options: any): void;
