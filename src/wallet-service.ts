@@ -20,28 +20,42 @@ export class WalletService {
     }
 
     public getSession(sessionId: string): Promise<IValidWalletSessionResponse> {
-        const promise = fetch(`${this._endpoint}/sessions/${sessionId}`, {
-            headers: this._defaultHeaders
-        })
+        // const promise = fetch(`${this._endpoint}/sessions/${sessionId}`, {
+        //     headers: this._defaultHeaders
+        // })
 
-        .then<IWalletSessionResponse>(response => response.json())
+        // .then<IWalletSessionResponse>(response => response.json())
         
-        .catch<IWalletSessionResponse>(function onGetSessionRejected(error) {
-            // TODO: handle fetch errors
-            return error;
+        // .catch<IWalletSessionResponse>(function onGetSessionRejected(error) {
+        //     // TODO: handle fetch errors
+        //     return error;
+        // })
+
+        // .then<IValidWalletSessionResponse>(jsonResponse => {
+        //     const transformer = getWalletResponseTransformer(jsonResponse.session.walletname);
+
+        //     if(transformer) {
+        //         return transformer.transform(jsonResponse);
+        //     }
+
+        //     return jsonResponse;
+        // });
+
+        // return promise;
+
+        // Test Wallet test response
+        return new Promise((resolve, reject) => {
+            resolve({
+                session: {
+                    walletname: "test",
+                    data: [
+                        {key: "amount", value: "12345.67"},
+                        {key: "currency", value: "EUR"},
+                        {key: "returnurl", value: "https://wallet-v1.api.epay.eu/sessiontoken/authorize"}
+                    ]
+                }
+            });
         })
-
-        .then<IValidWalletSessionResponse>(jsonResponse => {
-            const transformer = getWalletResponseTransformer(jsonResponse.session.walletname);
-
-            if(transformer) {
-                return transformer.transform(jsonResponse);
-            }
-
-            return jsonResponse;
-        });
-
-        return promise;
 
         // Mobilepay test response
         // return new Promise((resolve, reject) => {
@@ -62,7 +76,7 @@ export class WalletService {
         //         session: {
         //             walletname: "masterpass",
         //             data: [
-        //                 {key: "requestToken", value: "1c140e5de368763067bcf95283a82f1d60002362"},
+        //                 {key: "requestToken", value: "63542f1672fe47f0a9ca55c7b28c106aa5fca5ab"},
         //                 {key: "callbackUrl", value: "http://test.masterpass.epay.eu:3000"},
         //                 {key: "merchantCheckoutId", value: "32fa873be44a43d8bf7c4c1ba7a9c97b"},
         //                 {key: "allowedCardTypes", value: "master,amex,diners,discover,maestro,visa"}

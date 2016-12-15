@@ -9,5 +9,5 @@ export const mobilePay = {
 
 export const epayZero = {
     walletApi: "https://wallet-v1.api.epay.eu",
-    testClient: "https://walletclient-v1.api.epay.eu"
+    testClient: "http://localhost:1337"//"https://walletclient-v1.api.epay.eu"
 }

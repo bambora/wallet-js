@@ -8,7 +8,7 @@ declare type IWalletName = "masterpass" | "mobilepay" | "test";
 declare type IPreferredWindowState = "fullscreen" | "overlay";
 
 interface IGenericWalletOptions {
-    preferredWindowState?: IPreferredWindowState;		// default: "overlay"
+    preferredWindowState?: IPreferredWindowState;		    // default: "overlay"
     endpoint?: string;			                            // default: bambora default API endpoint
     defaultHeaders?: IHeaders;                              // default: undefined
 }

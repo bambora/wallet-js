@@ -4,13 +4,16 @@ import {
     walletRequestTypes,
     MasterPassRequest,
     MobilePayRequest,
+    TestRequest,
     WalletService,
     getWalletRequestType
 } from "./";
 
 
 export default class Wallet implements IWallet {
-    public open(sessionId: string, options?: IGenericWalletOptions): Promise<any> {
+    public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<any> {
+        options.preferredWindowState = options.preferredWindowState || "overlay";
+
         const walletService = new WalletService(options);
         const sessionPromise = walletService.getSession(sessionId);
 
