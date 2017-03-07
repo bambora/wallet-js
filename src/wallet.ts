@@ -9,7 +9,6 @@ import {
     getWalletRequestType
 } from "./";
 
-
 export default class Wallet implements IWallet {
     public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<any> {
         options.preferredWindowState = options.preferredWindowState || "overlay";
@@ -17,18 +16,19 @@ export default class Wallet implements IWallet {
         const walletService = new WalletService(options);
         const sessionPromise = walletService.getSession(sessionId);
 
-        sessionPromise.then(response => {
-            const walletRequestConstructable = getWalletRequestType(response.session.walletname);
-            const walletOptions = Wallet.getWalletOptions(response.session.data);
-            const walletRequest = new walletRequestConstructable(walletOptions, options);
+        sessionPromise.then(
+            function onGetSessionFulfilled(response) {
+                const walletRequestConstructable = getWalletRequestType(response.session.walletname);
+                const walletOptions = Wallet.getWalletOptions(response.session.data);
+                const walletRequest = new walletRequestConstructable(walletOptions, options);
 
-            return walletRequest.initiate();
-        })
-
-        sessionPromise.catch(function onGetSessionRejected(error) {
-            // handle error
-            return error;
-        });
+                return walletRequest.initiate();
+            },
+            function onGetSessionRejected(error) {
+                // handle error
+                return error;
+            }
+        );
 
         return sessionPromise;
     }

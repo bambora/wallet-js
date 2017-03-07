@@ -8,9 +8,9 @@ declare type IWalletName = "masterpass" | "mobilepay" | "test";
 declare type IPreferredWindowState = "fullscreen" | "overlay";
 
 interface IGenericWalletOptions {
-    preferredWindowState?: IPreferredWindowState;		    // default: "overlay"
-    endpoint?: string;			                            // default: bambora default API endpoint
-    defaultHeaders?: IHeaders;                              // default: undefined
+    preferredWindowState? : IPreferredWindowState; // default : "overlay"
+    endpoint?             : string;			       // default : bambora default API endpoint
+    defaultHeaders?       : IHeaders;              // default : undefined
 }
 
 
@@ -34,6 +34,25 @@ interface IWalletResponseTransformerConstructable {
 
 interface IWalletResponseTransformer {
     transform(response: IWalletSessionResponse): IValidWalletSessionResponse;
+}
+
+interface IMetaResponse {
+    meta: {
+        result: boolean;
+        message: {
+            enduser  : string;
+            merchant : string;
+        };
+        action: {
+            source : string;
+            code   : string;
+            type   : string;
+        };
+        paging: {
+            lastevaluatedkey : string;
+            itemsreturned    : number;
+        };
+    };
 }
 
 
