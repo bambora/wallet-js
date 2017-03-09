@@ -1,4 +1,3 @@
-/// <reference path="../../wallet.d.ts" />
 /// <reference path="./masterpass.d.ts" />
 import * as endpoints from "../../endpoints";
 import { WalletRequestType }  from "../../request-types";

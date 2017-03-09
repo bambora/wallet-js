@@ -1,64 +1,69 @@
-// Generic wallet
-interface IWallet {
-    open(sessionId: string, options?: IGenericWalletOptions): Promise<any>;
-}
+import { EventEmitter } from "eventemitter3";
 
-declare type IWalletName = "masterpass" | "mobilepay" | "test";
+declare global {
+    // Generic wallet
+    interface IWallet {
+        open(sessionId: string, options?: IGenericWalletOptions): Promise<any>;
+    }
 
-declare type IPreferredWindowState = "fullscreen" | "overlay";
+    type IWalletName = "masterpass" | "mobilepay" | "test";
 
-interface IGenericWalletOptions {
-    preferredWindowState? : IPreferredWindowState; // default : "overlay"
-    endpoint?             : string;			       // default : bambora default API endpoint
-    defaultHeaders?       : IHeaders;              // default : undefined
-}
+    type IPreferredWindowState = "fullscreen" | "overlay";
 
-
-// Request
-interface IWalletRequestData { }
-
-interface IWalletRequestConstructable {
-    new(data: IWalletRequestData, options?: IGenericWalletOptions): IWalletRequest;
-}
-
-interface IWalletRequest {
-    /** Initiates the wallet request */
-    initiate(): Promise<any>;
-}
+    interface IGenericWalletOptions {
+        preferredWindowState? : IPreferredWindowState; // default : "overlay"
+        endpoint?             : string;			       // default : bambora default API endpoint
+        defaultHeaders?       : IHeaders;              // default : undefined
+        events?               : EventEmitter;          // default : undefined
+    }
 
 
-// Response
-interface IWalletResponseTransformerConstructable {
-    new(): IWalletResponseTransformer;
-}
+    // Request
+    interface IWalletRequestData { }
 
-interface IWalletResponseTransformer {
-    transform(response: IWalletSessionResponse): IValidWalletSessionResponse;
-}
+    interface IWalletRequestConstructable {
+        new(data: IWalletRequestData, options?: IGenericWalletOptions): IWalletRequest;
+    }
 
-interface IMetaResponse {
-    meta: {
-        result: boolean;
-        message: {
-            enduser  : string;
-            merchant : string;
+    interface IWalletRequest {
+        /** Initiates the wallet request */
+        initiate(): Promise<any>;
+    }
+
+
+    // Response
+    interface IWalletResponseTransformerConstructable {
+        new(): IWalletResponseTransformer;
+    }
+
+    interface IWalletResponseTransformer {
+        transform(response: IWalletSessionResponse): IValidWalletSessionResponse;
+    }
+
+    interface IMetaResponse {
+        meta: {
+            result: boolean;
+            message: {
+                enduser  : string;
+                merchant : string;
+            };
+            action: {
+                source : string;
+                code   : string;
+                type   : string;
+            };
+            paging: {
+                lastevaluatedkey : string;
+                itemsreturned    : number;
+            };
         };
-        action: {
-            source : string;
-            code   : string;
-            type   : string;
-        };
-        paging: {
-            lastevaluatedkey : string;
-            itemsreturned    : number;
-        };
-    };
-}
+    }
 
 
-// Browser
-interface Window {
-    Bambora: {
-        Wallet?: any;
-    };
+    // Browser
+    interface Window {
+        Bambora: {
+            Wallet?: any;
+        };
+    }
 }

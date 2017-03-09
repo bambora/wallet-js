@@ -1,4 +1,3 @@
-/// <reference path="../../wallet.d.ts" />
 /// <reference path="./test.d.ts" />
 import * as queryString from "query-string";
 import * as endpoints from "../../endpoints";

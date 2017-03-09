@@ -7,17 +7,11 @@ interface IPollResponse extends IMetaResponse {
 	redirecturl     : string;
 	wait            : boolean;
 	authorizeresult : boolean;
-	parameters: Array<{
-		key   : string;
-		value : string;
-	}>;
+	parameters: Array<IKeyValueType<string>>;
 }
 
 interface IVippsResult {
 	redirectUrl     : string;
 	authorizeResult : boolean;
-	parameters: Array<{
-		key   : string;
-		value : string;
-	}>;
+	parameters: Array<IKeyValueType<string>>;
 }
