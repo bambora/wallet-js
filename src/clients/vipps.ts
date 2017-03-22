@@ -1,9 +1,9 @@
-import { Promise }                                                                                                        from "es6-promise";
-import * as fetch                                                                                                         from "isomorphic-fetch";
-import { EventEmitter }                                                                                                   from "eventemitter3";
-import { AuthorizationError, ConnectionError, NoResponseError }                                                           from "../errors";
-import { WalletRequestType }                                                                                              from "../request-types";
-import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData, IMetaResponse, IKeyValueType } from  "../wallet";
+import { Promise }                                                                                                                       from "es6-promise";
+import * as fetch                                                                                                                        from "isomorphic-fetch";
+import { EventEmitter }                                                                                                                  from "eventemitter3";
+import { AuthorizationError, ConnectionError, NoResponseError }                                                                          from "../errors";
+import { WalletRequestType }                                                                                                             from "../request-types";
+import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData, IMetaResponse, IKeyValueType, IWalletResult } from  "../wallet";
 
 
 @WalletRequestType("Vipps")
@@ -22,13 +22,13 @@ export class VippsRequest implements IWalletRequest {
         }
     }
 
-    public initiate(): Promise<IVippsResult> {
+    public initiate(): Promise<IWalletResult> {
         const { url, method } = this.data;
         var events            = this._events;
 
         if (method === "Redirect") location.href = url;
 
-        function poll(retries = 0): Promise<IVippsResult> {
+        function poll(retries = 0): Promise<IWalletResult> {
             const maximumRetries = 15;
 
             events.emit("pollRequestInitiated", {
@@ -36,11 +36,11 @@ export class VippsRequest implements IWalletRequest {
                 maximumRetries
             });
 
-            function onPollRequestRejected(error?): Promise<IVippsResult> { //TODO: Move outside and call it in onParseFulfilled in if (!response.meta.result)
+            function onPollRequestRejected(error?): Promise<IWalletResult> { //TODO: Move outside and call it in onParseFulfilled in if (!response.meta.result)
                 if (retries >= maximumRetries)
                     throw new ConnectionError("The maximum number of retries has been exceeded.");
 
-                return new Promise<IVippsResult>(
+                return new Promise<IWalletResult>(
                     resolve => {
                         setTimeout(
                             () => resolve(poll(retries + 1)),
@@ -51,11 +51,12 @@ export class VippsRequest implements IWalletRequest {
             }
 
             return fetch(url, { headers: { "Accept": "application/json" } })
-
-                .then<IPollResponse>(response => response.json(), onPollRequestRejected)
-
+                .then<IPollResponse>(
+                    response => response.json(),
+                    onPollRequestRejected
+                )
                 .then(
-                    function onPollParseFulfilled(response) {
+                    function onPollParseFulfilled(response): Promise<IWalletResult> {
                         events.emit("pollRequestFulfilled", response);
 
                         if (!response || !response.meta)
@@ -69,10 +70,13 @@ export class VippsRequest implements IWalletRequest {
                         if (!response.authorizeresult)
                             throw new AuthorizationError(response.meta.message.merchant);
 
-                        return Promise.resolve({
-                            redirectUrl     : response.redirecturl,
-                            authorizeResult : response.authorizeresult,
-                            parameters      : response.parameters
+                        return Promise.resolve<IWalletResult>({
+                            walletName: "Vipps",
+                            data: {
+                                redirectUrl     : response.redirecturl,
+                                authorizeResult : response.authorizeresult,
+                                parameters      : response.parameters
+                            }
                         });
                     }
                 );

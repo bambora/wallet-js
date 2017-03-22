@@ -1,9 +1,9 @@
-import { Promise }                                                                          from "es6-promise";
-import * as endpoints                                                                       from "../endpoints";
-import { WalletRequestType }                                                                from "../request-types";
-import { WalletResponseTransformer }                                                        from "../response-transformers";
-import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData } from "../wallet";
-import { IWalletSessionResponse, IValidWalletSessionResponse }                              from "../wallet-service";
+import { Promise }                                                                                         from "es6-promise";
+import * as endpoints                                                                                      from "../endpoints";
+import { WalletRequestType }                                                                               from "../request-types";
+import { WalletResponseTransformer }                                                                       from "../response-transformers";
+import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData, IWalletResult } from "../wallet";
+import { IWalletSessionResponse, IValidWalletSessionResponse }                                             from "../wallet-service";
 
 
 @WalletRequestType("MasterPass")
@@ -20,34 +20,28 @@ export class MasterPassRequest implements IWalletRequest {
         }
     }
 
-    public initiate(): Promise<any> {
+    public initiate(): Promise<IWalletResult> {
         const promise = this.loadScriptIfNotAlreadyLoaded()
-
-            .then(() => this.sendRequest())
-
-            .then(function onMasterPassLightboxRequestFulfilled(mpLightboxResponse) {
-                return mpLightboxResponse.mpstatus;
-            })
-
-            .catch(function onMasterPassLightboxRequestRejected(mpLightboxResponse) {
-                return new Error(mpLightboxResponse.mpstatus);
-            });
+            .then(() => this.sendRequest());
 
         return promise;
     }
 
-    private sendRequest(): Promise<any> {
-        const promise = new Promise<any>((resolve, reject) => {
+    private sendRequest(): Promise<IWalletResult> {
+        const promise = new Promise<IWalletResult>((resolve, reject) => {
             MasterPass.client.checkout({
+                version                       : "v6",
                 requestToken                  : this.data.requestToken,
                 callbackUrl                   : this.data.callbackUrl,
-                failureCallback               : mpLightboxResponse => reject(mpLightboxResponse), // TODO : should be changed to instance of Error.
-                cancelCallback                : mpLightboxResponse => reject(mpLightboxResponse),
-                successCallback               : mpLightboxResponse => resolve(mpLightboxResponse),
                 merchantCheckoutId            : this.data.merchantCheckoutId,
                 allowedCardTypes              : this.data.allowedCardTypes,
-                version                       : "v6",
-                suppressShippingAddressEnable : this.data.suppressShippingAddressEnable as any === "true"
+                suppressShippingAddressEnable : this.data.suppressShippingAddressEnable as any === "true",
+                failureCallback               : mpLightboxResponse => reject(mpLightboxResponse),
+                cancelCallback                : mpLightboxResponse => reject(mpLightboxResponse),
+                successCallback               : mpLightboxResponse => resolve({
+                                                    walletName: "MasterPass",
+                                                    data: mpLightboxResponse
+                                                })
             });
         })
 
@@ -69,11 +63,7 @@ export class MasterPassRequest implements IWalletRequest {
 
                 document.head.appendChild(this._script);
             }
-        })
-
-        promise.catch(function onScriptLoadRejected(event) {
-            // TODO: handle script load error
-        })
+        });
 
         return promise;
     }

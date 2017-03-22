@@ -1,8 +1,8 @@
-import { Promise }                                                                          from "es6-promise";
-import * as queryString                                                                     from "query-string";
-import * as endpoints                                                                       from "../endpoints";
-import { WalletRequestType }                                                                from "../request-types";
-import { IWalletRequestData, IWalletRequest, IPreferredWindowState, IGenericWalletOptions } from "../wallet";
+import { Promise }                                                                                         from "es6-promise";
+import * as queryString                                                                                    from "query-string";
+import * as endpoints                                                                                      from "../endpoints";
+import { WalletRequestType }                                                                               from "../request-types";
+import { IWalletRequestData, IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletResult } from "../wallet";
 
 
 @WalletRequestType("Test")
@@ -19,7 +19,7 @@ export class TestRequest implements IWalletRequest {
         }
     }
 
-    public initiate(): Promise<any> {
+    public initiate(): Promise<IWalletResult> {
         if(this._preferredWindowState === "overlay")  {
             const iframe = document.createElement("iframe");
             const url    = `${endpoints.epayZero.testClient}/?${queryString.stringify(this.data)}`; 
@@ -40,26 +40,31 @@ export class TestRequest implements IWalletRequest {
 
             this.showBackdrop();
 
-            return new Promise((resolve, reject) => {
+            return new Promise<IWalletResult>((resolve, reject) => {
                 window.addEventListener("message", onMessageReceived);
 
                 function onMessageReceived(event) {
-                    if(event.origin !== "https://wallet-v1.api-epay.eu") return;
+                    if(event.origin !== "https://wallet-v1.api-epay.eu") return; // TODO: put into endpoints & set via option
                     
                     const message = event.data;
+
+                    const result: IWalletResult = {
+                        walletName: "Test",
+                        data: event.data
+                    }
                     
-                    if(message && message.status) {
-                        switch(message.status) {
+                    if(result.data && result.data.status) {
+                        switch(result.data.status) {
                             case "success": {
-                                resolve(message);
+                                resolve(result);
                                 break;
                             }
                             case "error": {
-                                reject(message);
+                                reject(result);
                                 break;
                             }
                             case "cancel": {
-                                reject(message);
+                                reject(result);
                                 break;
                             }
                         }

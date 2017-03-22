@@ -1,7 +1,7 @@
-import { Promise }                                                                          from "es6-promise";
-import * as endpoints                                                                       from "../endpoints";
-import { WalletRequestType }                                                                from "../request-types";
-import { IWalletRequest, IWalletRequestData, IPreferredWindowState, IGenericWalletOptions } from "../wallet";
+import { Promise }                                                                                         from "es6-promise";
+import * as endpoints                                                                                      from "../endpoints";
+import { WalletRequestType }                                                                               from "../request-types";
+import { IWalletRequest, IWalletRequestData, IPreferredWindowState, IGenericWalletOptions, IWalletResult } from "../wallet";
 
 
 @WalletRequestType("MobilePay")
@@ -17,7 +17,7 @@ export class MobilePayRequest implements IWalletRequest {
         }
     }
 
-    public initiate(): Promise<any> {
+    public initiate(): Promise<IWalletResult> {
         const form = document.createElement("form");
 
         form.action = endpoints.mobilePay.productionClient;
@@ -37,13 +37,13 @@ export class MobilePayRequest implements IWalletRequest {
         document.body.appendChild(form);
         form.submit();
 
-        return new Promise((resolve, reject) => {
+        return new Promise<IWalletResult>((resolve, reject) => {
             // Implement mobile pay in overlay
         });
     }
 }
 
 export interface IMobilePayRequestData extends IWalletRequestData {
-	SessionToken: string;
-	PhoneNumber?: string;
+	SessionToken : string;
+	PhoneNumber? : string;
 }

@@ -3,10 +3,11 @@ import { EventEmitter }                                                       fr
 import getWalletRequestType                                                   from "./request-types";
 import WalletService, { IWalletSessionResponse, IValidWalletSessionResponse } from "./wallet-service";
 
+
 export default class Wallet {
     public events = new EventEmitter();
 
-    public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<any> {
+    public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<IWalletResult> {
         options.preferredWindowState = options.preferredWindowState || "overlay";
         options.events               = this.events;
 
@@ -62,7 +63,12 @@ export interface IWalletRequestData { }
 
 export interface IWalletRequest {
     /** Initiates the wallet request */
-    initiate(): Promise<any>;
+    initiate(): Promise<IWalletResult>;
+}
+
+export interface IWalletResult {
+    walletName : IWalletName;
+    data       : any;
 }
 
 export interface IMetaResponse {
