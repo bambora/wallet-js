@@ -1,5 +1,6 @@
-export const walletRequestTypes = {};
+import { IWalletRequestConstructable } from "./wallet";
 
+export const walletRequestTypes = {};
 
 export function getWalletRequestType(walletName: string): IWalletRequestConstructable {
     if(walletRequestTypes[walletName]) return walletRequestTypes[walletName];

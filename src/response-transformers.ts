@@ -1,5 +1,6 @@
-export const walletResponseTransformers = {};
+import { IWalletResponseTransformer, IWalletResponseTransformerConstructable} from "./wallet";
 
+export const walletResponseTransformers = {};
 
 export function getWalletResponseTransformer(walletName: string): IWalletResponseTransformer {
     if(walletResponseTransformers[walletName]) return new walletResponseTransformers[walletName]();

@@ -1,15 +1,16 @@
-/// <reference path="./mobilepay.d.ts" />
-import * as endpoints from "../../endpoints";
-import { WalletRequestType }  from "../../request-types";
+import * as endpoints        from "../../endpoints";
+import { WalletRequestType } from "../../request-types";
+import { Promise }           from "es6-promise";
+import { IWalletRequest, IWalletRequestData, IPreferredWindowState, IGenericWalletOptions } from "../../wallet";
 
 
-@WalletRequestType("mobilepay")
+@WalletRequestType("MobilePay")
 export class MobilePayRequest implements IWalletRequest {
     private _preferredWindowState: IPreferredWindowState;
 
     constructor(
-        private data: IMobilePayRequestData,
-        options?: IGenericWalletOptions
+        private data : IMobilePayRequestData,
+        options?     : IGenericWalletOptions
     ) {
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
@@ -26,8 +27,8 @@ export class MobilePayRequest implements IWalletRequest {
         for(let key in this.data) {
             let input = document.createElement("input");
 
-            input.type = "hidden";
-            input.name = key;
+            input.type  = "hidden";
+            input.name  = key;
             input.value = this.data[key];
 
             form.appendChild(input);
@@ -40,4 +41,9 @@ export class MobilePayRequest implements IWalletRequest {
             // Implement mobile pay in overlay
         });
     }
+}
+
+export interface IMobilePayRequestData extends IWalletRequestData {
+	SessionToken: string;
+	PhoneNumber?: string;
 }
