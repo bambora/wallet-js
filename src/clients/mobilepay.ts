@@ -1,7 +1,7 @@
-import * as endpoints        from "../../endpoints";
-import { WalletRequestType } from "../../request-types";
-import { Promise }           from "es6-promise";
-import { IWalletRequest, IWalletRequestData, IPreferredWindowState, IGenericWalletOptions } from "../../wallet";
+import { Promise }                                                                          from "es6-promise";
+import * as endpoints                                                                       from "../endpoints";
+import { WalletRequestType }                                                                from "../request-types";
+import { IWalletRequest, IWalletRequestData, IPreferredWindowState, IGenericWalletOptions } from "../wallet";
 
 
 @WalletRequestType("MobilePay")

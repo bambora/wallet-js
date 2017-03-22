@@ -1,10 +1,11 @@
-import { Promise }                                 from "es6-promise";
-import * as fetch                                  from "isomorphic-fetch";
-import { endpoints, getWalletResponseTransformer } from "./";
-import { IGenericWalletOptions, IWalletName }      from "./wallet";
+import { Promise }                                           from "es6-promise";
+import * as fetch                                            from "isomorphic-fetch";
+import * as endpoints                                        from "./endpoints";
+import getWalletResponseTransformer                          from "./response-transformers";
+import { IGenericWalletOptions, IWalletName, IKeyValueType } from  "./wallet";
 
 
-export class WalletService {
+export default class WalletService {
     private _endpoint = endpoints.epayZero.walletApi;
 
     private _defaultHeaders: IHeaders = new Headers({
@@ -53,10 +54,4 @@ export interface IValidWalletSessionResponse {
         walletname : IWalletName;
         data       : Array<IKeyValueType<any>>;
     }
-}
-
-export interface IKeyValueType<T> {
-    key   : string;
-    value : T;
-    type  : "string" | "array";
 }

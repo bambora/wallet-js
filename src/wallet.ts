@@ -1,15 +1,7 @@
-import { Promise }      from "es6-promise";
-import { EventEmitter } from "eventemitter3";
-import {
-    endpoints,
-    walletRequestTypes,
-    MasterPassRequest,
-    MobilePayRequest,
-    TestRequest,
-    WalletService,
-    getWalletRequestType
-}                       from "./";
-import { IKeyValueType, IWalletSessionResponse, IValidWalletSessionResponse } from "./wallet-service";
+import { Promise }                                                            from "es6-promise";
+import { EventEmitter }                                                       from "eventemitter3";
+import getWalletRequestType                                                   from "./request-types";
+import WalletService, { IWalletSessionResponse, IValidWalletSessionResponse } from "./wallet-service";
 
 export default class Wallet {
     public events = new EventEmitter();
@@ -46,11 +38,6 @@ export default class Wallet {
     }
 }
 
-if(window) {
-    window.Bambora        = window.Bambora || {};
-    window.Bambora.Wallet = window.Bambora.Wallet || Wallet;
-}
-
 // Generic wallet
 export type IWalletName = "MasterPass" | "MobilePay" | "Test" | "Vipps";
 
@@ -64,26 +51,18 @@ export interface IGenericWalletOptions {
     pollTimeout?          : number;                // default : 120 (seconds)
 }
 
+export interface IKeyValueType<T> {
+    key   : string;
+    value : T;
+    type  : "string" | "array";
+}
+
 // Request
 export interface IWalletRequestData { }
-
-export interface IWalletRequestConstructable {
-    new(data: IWalletRequestData, options?: IGenericWalletOptions): IWalletRequest;
-}
 
 export interface IWalletRequest {
     /** Initiates the wallet request */
     initiate(): Promise<any>;
-}
-
-
-// Response
-export interface IWalletResponseTransformerConstructable {
-    new(): IWalletResponseTransformer;
-}
-
-export interface IWalletResponseTransformer {
-    transform(response: IWalletSessionResponse): IValidWalletSessionResponse;
 }
 
 export interface IMetaResponse {
@@ -103,14 +82,4 @@ export interface IMetaResponse {
             itemsreturned    : number;
         };
     };
-}
-
-
-// Browser
-declare global {
-    interface Window {
-        Bambora: {
-            Wallet?: any;
-        };
-    }
 }

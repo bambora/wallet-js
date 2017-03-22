@@ -2,8 +2,8 @@
   "name": "wallet",
   "version": "0.0.1",
   "description": "Bambora Online JavaScript API for Wallet transactions",
-  "main": "dist/wallet.js",
-  "types": "./dist/src/wallet.d.ts",
+  "main": "dist/index.js",
+  "types": "./dist/src/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "clean": "rimraf ./dist",
@@ -22,14 +22,13 @@
   },
   "homepage": "https://github.com/bambora/wallet#readme",
   "dependencies": {
-    "@types/isomorphic-fetch": "0.0.31",
-    "@types/query-string": "^3.0.31",
     "es6-promise": "^4.0.5",
     "eventemitter3": "^2.0.2",
     "isomorphic-fetch": "^2.2.1",
     "query-string": "^4.2.3"
   },
   "devDependencies": {
+    "@types/query-string": "^3.0.31",
     "@types/es6-promise": "0.0.32",
     "@types/isomorphic-fetch": "0.0.31",
     "babel": "^6.5.2",

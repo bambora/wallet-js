@@ -16,8 +16,5 @@
   "exclude": [
     "node_modules",
     "bower_components"
-  ],
-  "files": [
-    "./src/wallet.ts"
   ]
 }

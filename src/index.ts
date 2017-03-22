@@ -1,7 +1,25 @@
-export * from "./clients";
-export * from "./request-types";
-export * from "./response-transformers";
-export * from "./wallet-service";
+import Wallet from "./wallet";
 
-import * as endpoints from "./endpoints";
-export { endpoints };
+if(window) {
+    window.Bambora        = window.Bambora        || {};
+    window.Bambora.Wallet = window.Bambora.Wallet || Wallet;
+}
+
+// Browser
+declare global {
+    module Bambora {
+        const Wallet: IWalletConstructable;
+    }
+
+    interface Window {
+        Bambora: {
+            Wallet?: IWalletConstructable;
+        };
+    }
+}
+
+export interface IWalletConstructable {
+    new(): Wallet;
+}
+
+export default Wallet;

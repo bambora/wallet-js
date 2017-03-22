@@ -1,11 +1,9 @@
-import { Promise }                                                                                         from "es6-promise";
-import * as fetch                                                                                          from "isomorphic-fetch";
-import { EventEmitter }                                                                                    from "eventemitter3";
-import { AuthorizationError, ConnectionError, NoResponseError }                                            from "../../errors";
-import * as endpoints                                                                                      from "../../endpoints";
-import { WalletRequestType }                                                                               from "../../request-types";
-import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData, IMetaResponse } from "./../../wallet";
-import { IKeyValueType }                                                                                   from "./../../wallet-service";
+import { Promise }                                                                                                        from "es6-promise";
+import * as fetch                                                                                                         from "isomorphic-fetch";
+import { EventEmitter }                                                                                                   from "eventemitter3";
+import { AuthorizationError, ConnectionError, NoResponseError }                                                           from "../errors";
+import { WalletRequestType }                                                                                              from "../request-types";
+import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData, IMetaResponse, IKeyValueType } from  "../wallet";
 
 
 @WalletRequestType("Vipps")
@@ -26,19 +24,19 @@ export class VippsRequest implements IWalletRequest {
 
     public initiate(): Promise<IVippsResult> {
         const { url, method } = this.data;
-        const self            = this;
+        var events            = this._events;
 
         if (method === "Redirect") location.href = url;
 
         function poll(retries = 0): Promise<IVippsResult> {
             const maximumRetries = 15;
 
-            self._events.emit("pollRequestInitiated", {
+            events.emit("pollRequestInitiated", {
                 retries,
                 maximumRetries
             });
 
-            function onPollRequestRejected(error) { //TODO: Move outside and call it in onParseFulfilled in if (!response.meta.result)
+            function onPollRequestRejected(error?): Promise<IVippsResult> { //TODO: Move outside and call it in onParseFulfilled in if (!response.meta.result)
                 if (retries >= maximumRetries)
                     throw new ConnectionError("The maximum number of retries has been exceeded.");
 
@@ -58,13 +56,13 @@ export class VippsRequest implements IWalletRequest {
 
                 .then(
                     function onPollParseFulfilled(response) {
-                        self._events.emit("pollRequestFulfilled", response);
+                        events.emit("pollRequestFulfilled", response);
 
                         if (!response || !response.meta)
                             throw new NoResponseError("The response was empty.");
 
                         if (!response.meta.result)
-                            throw new AuthorizationError(response.meta.message.merchant);
+                            return onPollRequestRejected();
 
                         if (response.wait) return poll();
                         

@@ -1,9 +1,9 @@
-import * as endpoints                                                                       from "../../endpoints";
-import { WalletRequestType }                                                                from "../../request-types";
-import { WalletResponseTransformer }                                                        from "../../response-transformers";
 import { Promise }                                                                          from "es6-promise";
-import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData } from "../../wallet";
-import { IWalletSessionResponse, IValidWalletSessionResponse }                              from "../../wallet-service";
+import * as endpoints                                                                       from "../endpoints";
+import { WalletRequestType }                                                                from "../request-types";
+import { WalletResponseTransformer }                                                        from "../response-transformers";
+import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData } from "../wallet";
+import { IWalletSessionResponse, IValidWalletSessionResponse }                              from "../wallet-service";
 
 
 @WalletRequestType("MasterPass")
@@ -62,7 +62,7 @@ export class MasterPassRequest implements IWalletRequest {
                 this._script = this._script || document.createElement("script");
 
                 this._script.async = false;
-                this._script.src   = endpoints.masterPass.sandboxClientApi;//productionClientApi;
+                this._script.src   = endpoints.masterPass.productionClientApi;
 
                 this._script.onload  = event => resolve(event);
                 this._script.onerror = event => reject(event);

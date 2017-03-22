@@ -1,8 +1,8 @@
-import * as queryString      from "query-string";
-import * as endpoints        from "../../endpoints";
-import { WalletRequestType } from "../../request-types";
-import { Promise }           from "es6-promise";
-import { IWalletRequestData, IWalletRequest, IPreferredWindowState, IGenericWalletOptions } from "../../wallet";
+import { Promise }                                                                          from "es6-promise";
+import * as queryString                                                                     from "query-string";
+import * as endpoints                                                                       from "../endpoints";
+import { WalletRequestType }                                                                from "../request-types";
+import { IWalletRequestData, IWalletRequest, IPreferredWindowState, IGenericWalletOptions } from "../wallet";
 
 
 @WalletRequestType("Test")

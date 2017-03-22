@@ -5,7 +5,7 @@ const isProduction = process.argv.indexOf('-p') !== -1;
 
 module.exports = {
     entry: {
-        wallet: "./src/wallet.ts",
+        index: "./src/index.ts",
     },
     output: {
         path: __dirname + "/dist",
