@@ -14,6 +14,25 @@
             "allow-leading-underscore",
             "allow-trailing-underscore"
         ],
+        "arrow-parens": [
+            true,
+            "ban-single-arg-parens"
+        ],
+        "array-type": [
+            "generic"
+        ],
+        "max-classes-per-file": [
+            true,
+            2
+        ],
+        "no-var-keyword": false,
+        "ordered-imports": [
+            false
+        ],
+        "only-arrow-functions": [
+            true,
+            "allow-named-functions"
+        ],
         "curly": false // Change to "next-line-single-line" after next major tslint release
     }
 }

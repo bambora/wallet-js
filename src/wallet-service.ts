@@ -8,7 +8,7 @@ export default class WalletService {
     private _endpoint = endpoints.epayZero.walletApi;
 
     private _defaultHeaders = {
-        "Accept": "application/json, text/plain, */*",
+        Accept: "application/json, text/plain, */*",
     };
 
     constructor(options?: IGenericWalletOptions) {

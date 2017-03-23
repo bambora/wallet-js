@@ -1,18 +1,23 @@
-import { Promise }                                                                                         from "es6-promise";
-import * as qs                                                                                             from "querystringify";
-import * as endpoints                                                                                      from "../endpoints";
-import { WalletRequestType }                                                                               from "../request-types";
-import { IWalletRequestData, IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletResult } from "../wallet";
-
+import { Promise }           from "es6-promise";
+import * as qs               from "querystringify";
+import * as endpoints        from "../endpoints";
+import { WalletRequestType } from "../request-types";
+import {
+    IWalletRequestData,
+    IWalletRequest,
+    IPreferredWindowState,
+    IGenericWalletOptions,
+    IWalletResult,
+}                            from "../wallet";
 
 @WalletRequestType("Test")
 export class TestRequest implements IWalletRequest {
     private _preferredWindowState : IPreferredWindowState;
     private _backdrop             : HTMLDivElement;
-    
+
     constructor(
         private data: ITestRequestData,
-        options?: IGenericWalletOptions
+        options?: IGenericWalletOptions,
     ) {
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
@@ -20,9 +25,9 @@ export class TestRequest implements IWalletRequest {
     }
 
     public initiate(): Promise<IWalletResult> {
-        if(this._preferredWindowState === "overlay")  {
+        if (this._preferredWindowState === "overlay")  {
             const iframe = document.createElement("iframe");
-            const url    = `${endpoints.epayZero.testClient}/?${qs.stringify(this.data)}`; 
+            const url    = `${endpoints.epayZero.testClient}/?${qs.stringify(this.data)}`;
 
             iframe.setAttribute("src", url);
 
@@ -44,26 +49,28 @@ export class TestRequest implements IWalletRequest {
                 window.addEventListener("message", onMessageReceived);
 
                 function onMessageReceived(event) {
-                    if(event.origin !== "https://wallet-v1.api-epay.eu") return; // TODO: put into endpoints & set via option
-                    
+                    // TODO: put URL into endpoints & set via option
+                    if (event.origin !== "https://wallet-v1.api-epay.eu") return;
+
                     const message = event.data;
 
                     const result: IWalletResult = {
+                        data: event.data,
                         walletName: "Test",
-                        data: event.data
-                    }
-                    
-                    if(result.data && result.data.status) {
-                        switch(result.data.status) {
+                    };
+
+                    if (result.data && result.data.status) {
+                        switch (result.data.status) {
                             case "success": {
                                 resolve(result);
                                 break;
                             }
-                            case "error": {
+                            case "cancel": {
                                 reject(result);
                                 break;
                             }
-                            case "cancel": {
+                            default:
+                            case "error": {
                                 reject(result);
                                 break;
                             }
@@ -81,14 +88,16 @@ export class TestRequest implements IWalletRequest {
         form.method = "GET";
         form.target = "_self";
 
-        for(let key in this.data) {
-            let input = document.createElement("input");
+        for (let key in this.data) {
+            if (this.data.hasOwnProperty(key)) {
+                let input = document.createElement("input");
 
-            input.type  = "hidden";
-            input.name  = key;
-            input.value = this.data[key];
+                input.type  = "hidden";
+                input.name  = key;
+                input.value = this.data[key];
 
-            form.appendChild(input);
+                form.appendChild(input);
+            }
         }
 
         document.body.appendChild(form);
@@ -97,13 +106,13 @@ export class TestRequest implements IWalletRequest {
         // The returned object does not matter for fullscreen context,
         // as the user is redirected before we get to this point.
         // We can simply return an empty promise to meet the interface.
-        return new Promise((resolve, reject) => { });
+        return new Promise((resolve, reject) => null);
     }
 
     private showBackdrop() {
-        if(!this._backdrop) {
+        if (!this._backdrop) {
             this._backdrop = document.createElement("div");
-            
+
             this._backdrop.style.position   = "fixed";
             this._backdrop.style.zIndex     = "9999";
             this._backdrop.style.background = "rgba(0, 0, 0, 0.48)";
@@ -122,22 +131,24 @@ export class TestRequest implements IWalletRequest {
 
         this._backdrop.style.display = "block";
 
-        setTimeout(() => {
-            this._backdrop.style.opacity = "1";
-        }, 1)
+        setTimeout(
+            () => this._backdrop.style.opacity = "1",
+            1,
+        );
     }
 
     private hideBackdrop() {
-        if(!this._backdrop) return;
+        if (!this._backdrop) return;
 
         this._backdrop.style.opacity = "0";
 
-        setTimeout(() => {
-            this._backdrop.style.display = "none";
-        }, 500)
+        setTimeout(
+            () => this._backdrop.style.display = "none",
+            500,
+        );
     }
 }
 
 export interface ITestRequestData extends IWalletRequestData {
-	returnUrl: string;
+    returnUrl: string;
 }

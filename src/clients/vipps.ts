@@ -1,10 +1,21 @@
-import * as fetch                                                                                                                        from "isomorphic-fetch";
-import { Promise }                                                                                                                       from "es6-promise";
-import { EventEmitter }                                                                                                                  from "eventemitter3";
-import { AuthorizationError, ConnectionError, NoResponseError }                                                                          from "../errors";
-import { WalletRequestType }                                                                                                             from "../request-types";
-import { IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletRequestData, IMetaResponse, IKeyValueType, IWalletResult } from  "../wallet";
-
+import * as fetch            from "isomorphic-fetch";
+import { Promise }           from "es6-promise";
+import { EventEmitter }      from "eventemitter3";
+import { WalletRequestType } from "../request-types";
+import {
+    AuthorizationError,
+    ConnectionError,
+    NoResponseError,
+}                            from "../errors";
+import {
+    IWalletRequest,
+    IPreferredWindowState,
+    IGenericWalletOptions,
+    IWalletRequestData,
+    IMetaResponse,
+    IKeyValueType,
+    IWalletResult,
+}                            from "../wallet";
 
 @WalletRequestType("Vipps")
 export class VippsRequest implements IWalletRequest {
@@ -14,7 +25,7 @@ export class VippsRequest implements IWalletRequest {
 
     constructor(
         private data: IVippsRequestData,
-        options?: IGenericWalletOptions
+        options?: IGenericWalletOptions,
     ) {
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
@@ -33,7 +44,7 @@ export class VippsRequest implements IWalletRequest {
 
             events.emit("pollRequestInitiated", {
                 retries,
-                maximumRetries
+                maximumRetries,
             });
 
             function onPollRequestRejected(error?): Promise<IWalletResult> {
@@ -44,16 +55,16 @@ export class VippsRequest implements IWalletRequest {
                     resolve => {
                         setTimeout(
                             () => resolve(poll(retries + 1)),
-                            Math.pow(retries, 2) * 100
-                        )
-                    }
+                            Math.pow(retries, 2) * 100,
+                        );
+                    },
                 );
             }
 
-            return fetch(url, { headers: { "Accept": "application/json" } })
+            return fetch(url, { headers: { Accept: "application/json" } })
                 .then<IPollResponse>(
                     response => response.json(),
-                    onPollRequestRejected
+                    onPollRequestRejected,
                 )
                 .then(
                     function onPollParseFulfilled(response): Promise<IWalletResult> {
@@ -66,19 +77,19 @@ export class VippsRequest implements IWalletRequest {
                             return onPollRequestRejected();
 
                         if (response.wait) return poll();
-                        
+
                         if (!response.authorizeresult)
                             throw new AuthorizationError(response.meta.message.merchant);
 
                         return Promise.resolve<IWalletResult>({
-                            walletName: "Vipps",
                             data: {
-                                redirectUrl     : response.redirecturl,
                                 authorizeResult : response.authorizeresult,
-                                parameters      : response.parameters
-                            }
+                                parameters      : response.parameters,
+                                redirectUrl     : response.redirecturl,
+                            },
+                            walletName: "Vipps",
                         });
-                    }
+                    },
                 );
         }
 
@@ -87,19 +98,19 @@ export class VippsRequest implements IWalletRequest {
 }
 
 export interface IVippsRequestData extends IWalletRequestData {
-	url    : string;
-	method : "Redirect" | "Poll";
+    url    : string;
+    method : "Redirect" | "Poll";
 }
 
 export interface IPollResponse extends IMetaResponse {
-	redirecturl     : string;
-	wait            : boolean;
-	authorizeresult : boolean;
-	parameters      : Array<IKeyValueType<string>>;
+    redirecturl     : string;
+    wait            : boolean;
+    authorizeresult : boolean;
+    parameters      : Array<IKeyValueType<string>>;
 }
 
 export interface IVippsResult {
-	redirectUrl     : string;
-	authorizeResult : boolean;
-	parameters      : Array<IKeyValueType<string>>;
+    redirectUrl     : string;
+    authorizeResult : boolean;
+    parameters      : Array<IKeyValueType<string>>;
 }

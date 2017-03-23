@@ -1,8 +1,8 @@
 // polyfill for setPrototypeOf
-Object.setPrototypeOf = Object.setPrototypeOf || function(obj, proto) {
+Object.setPrototypeOf = Object.setPrototypeOf || ((obj, proto) => {
   obj.__proto__ = proto;
   return obj;
-};
+});
 
 export class ConnectionError extends Error {
     constructor(message?: string) {

@@ -1,8 +1,13 @@
-import { Promise }                                                                                         from "es6-promise";
-import * as endpoints                                                                                      from "../endpoints";
-import { WalletRequestType }                                                                               from "../request-types";
-import { IWalletRequest, IWalletRequestData, IPreferredWindowState, IGenericWalletOptions, IWalletResult } from "../wallet";
-
+import { Promise }           from "es6-promise";
+import * as endpoints        from "../endpoints";
+import { WalletRequestType } from "../request-types";
+import {
+    IWalletRequest,
+    IWalletRequestData,
+    IPreferredWindowState,
+    IGenericWalletOptions,
+    IWalletResult,
+}                            from "../wallet";
 
 @WalletRequestType("MobilePay")
 export class MobilePayRequest implements IWalletRequest {
@@ -10,7 +15,7 @@ export class MobilePayRequest implements IWalletRequest {
 
     constructor(
         private data : IMobilePayRequestData,
-        options?     : IGenericWalletOptions
+        options?     : IGenericWalletOptions,
     ) {
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
@@ -24,14 +29,16 @@ export class MobilePayRequest implements IWalletRequest {
         form.method = "POST";
         form.target = "_self";
 
-        for(let key in this.data) {
-            let input = document.createElement("input");
+        for (let key in this.data) {
+            if (this.data.hasOwnProperty(key)) {
+                let input = document.createElement("input");
 
-            input.type  = "hidden";
-            input.name  = key;
-            input.value = this.data[key];
+                input.type  = "hidden";
+                input.name  = key;
+                input.value = this.data[key];
 
-            form.appendChild(input);
+                form.appendChild(input);
+            }
         }
 
         document.body.appendChild(form);
@@ -44,6 +51,6 @@ export class MobilePayRequest implements IWalletRequest {
 }
 
 export interface IMobilePayRequestData extends IWalletRequestData {
-	SessionToken : string;
-	PhoneNumber? : string;
+    SessionToken : string;
+    PhoneNumber? : string;
 }

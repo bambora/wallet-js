@@ -10,7 +10,7 @@ export default class Wallet {
                 previous[current.key] = current.value;
                 return previous;
             },
-            {} as IWalletRequestData
+            {} as IWalletRequestData,
         );
 
         return walletOptions;
@@ -18,11 +18,17 @@ export default class Wallet {
 
     public events = new EventEmitter();
 
+    private _walletService = null;
+
+    constructor(walletService?: IConstructable<WalletService>) {
+        this._walletService = walletService ? new walletService() : new WalletService();
+    }
+
     public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<IWalletResult> {
         options.preferredWindowState = options.preferredWindowState || "overlay";
         options.events               = this.events;
 
-        const walletService  = new WalletService(options);
+        const walletService  = new this._walletService(options);
         const sessionPromise = walletService.getSession(sessionId)
             .then(
                 function onGetSessionFulfilled(response) {
@@ -31,7 +37,7 @@ export default class Wallet {
                     const walletRequest              = new walletRequestConstructable(walletOptions, options);
 
                     return walletRequest.initiate();
-                }
+                },
             );
 
         return sessionPromise;
@@ -49,6 +55,10 @@ export interface IGenericWalletOptions {
     defaultHeaders?       : any;                   // default : undefined
     events?               : EventEmitter;          // default : undefined
     pollTimeout?          : number;                // default : 120 (seconds)
+}
+
+export interface IConstructable<T> {
+    new(): T;
 }
 
 export interface IKeyValueType<T> {

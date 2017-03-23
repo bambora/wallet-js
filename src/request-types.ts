@@ -25,7 +25,7 @@ export function WalletRequestType(walletName: string) {
 
     walletName = walletName.toLowerCase();
 
-    return function(walletRequestConstructable: IWalletRequestConstructable) {
+    return (walletRequestConstructable: IWalletRequestConstructable) => {
         walletRequestTypes[walletName] = walletRequestConstructable;
     };
 }

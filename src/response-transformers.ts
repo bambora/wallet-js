@@ -30,7 +30,7 @@ export function WalletResponseTransformer(walletName: string) {
 
     walletName = walletName.toLowerCase();
 
-    return function(walletTransformerConstructable: IWalletResponseTransformerConstructable) {
+    return (walletTransformerConstructable: IWalletResponseTransformerConstructable) => {
         walletResponseTransformers[walletName] = walletTransformerConstructable;
     };
 };

@@ -1,4 +1,4 @@
-import Wallet from "./wallet";
+import Wallet, { IConstructable } from "./wallet";
 
 if (window) {
     window.Bambora        = window.Bambora        || {};
@@ -9,13 +9,7 @@ if (window) {
 // tslint:disable
 declare global {
     interface Bambora {
-        Wallet: IWalletConstructable;
-    }
-
-    interface Window {
-        Bambora: {
-            Wallet?: IWalletConstructable;
-        };
+        Wallet: IConstructable<Wallet>;
     }
 }
 // tslint:enable

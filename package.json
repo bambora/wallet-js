@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "./dist/src/index.d.ts",
   "scripts": {
-    "test": "mocha",
+    "test": "mocha -r ts-node/register test/**/*.ts",
     "clean": "rimraf ./dist",
     "start": "npm run clean && webpack-dev-server --hot",
     "dev-build": "npm run clean && webpack -d",
@@ -22,26 +22,28 @@
   },
   "homepage": "https://github.com/bambora/wallet#readme",
   "dependencies": {
-    "es6-promise": "^4.0.5",
-    "eventemitter3": "^2.0.2",
-    "querystringify": "^1.0.0",
-    "isomorphic-fetch": "^2.0.3"
+    "es6-promise": "~4.0.5",
+    "eventemitter3": "~2.0.2",
+    "querystringify": "~1.0.0",
+    "isomorphic-fetch": "~2.0.3"
   },
   "devDependencies": {
-    "@types/chai": "^3.4.35",
+    "@types/chai": "~3.4.35",
     "@types/es6-promise": "0.0.32",
     "@types/isomorphic-fetch": "0.0.33",
-    "@types/mocha": "^2.2.40",
-    "@types/query-string": "^3.0.31",
-    "babel": "^6.5.2",
-    "chai": "^3.5.0",
-    "mocha": "^3.2.0",
-    "rimraf": "^2.5.4",
-    "sinon": "^2.0.0",
-    "ts-loader": "^1.2.2",
-    "tslint": "^4.5.1",
-    "typescript": "^2.2.0",
-    "webpack": "^2.1.0-beta.27",
-    "webpack-dev-server": "^2.1.0-beta.9"
+    "@types/mocha": "~2.2.40",
+    "@types/query-string": "~3.0.31",
+    "@types/sinon": "^1.16.36",
+    "babel": "~6.5.2",
+    "chai": "~3.5.0",
+    "mocha": "~3.2.0",
+    "rimraf": "~2.5.4",
+    "sinon": "~2.0.0",
+    "ts-loader": "~1.2.2",
+    "ts-node": "~3.0.2",
+    "tslint": "~4.5.1",
+    "typescript": "~2.2.0",
+    "webpack": "~2.1.0-beta.27",
+    "webpack-dev-server": "~2.1.0-beta.9"
   }
 }

@@ -21,7 +21,7 @@ export class MasterPassRequest implements IWalletRequest {
 
     constructor(
         private data : IMasterPassRequestData,
-        options?     : IGenericWalletOptions
+        options?     : IGenericWalletOptions,
     ) {
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
@@ -103,6 +103,10 @@ export class MasterPassResponseTransformer {
     }
 }
 
+export type MasterPassRequestedDataTypes = "REWARD_PROGRAM" | "ADDRESS" | "PROFILE" | "CARD";
+
+export type MasterPassAllowedCardTypes = "master" | "amex" | "diners" | "discover" | "maestro" | "visa";
+
 export interface IMasterPassRequestData extends IWalletRequestData {
     requestPairing?               : boolean;
     requestToken                  : string;
@@ -112,8 +116,8 @@ export interface IMasterPassRequestData extends IWalletRequestData {
     cancelCallback                : Function;
     successCallback               : Function;
     merchantCheckoutId            : string;
-    requestedDataTypes?           : Array<"REWARD_PROGRAM" | "ADDRESS" | "PROFILE" | "CARD">;
-    allowedCardTypes              : Array<"master" | "amex" | "diners" | "discover" | "maestro" | "visa">;
+    requestedDataTypes?           : Array<MasterPassRequestedDataTypes>;
+    allowedCardTypes              : Array<MasterPassAllowedCardTypes>;
     version?                      : string;
     suppressShippingAddressEnable : boolean;
 }
