@@ -1,5 +1,5 @@
 import { Promise }                                                                                         from "es6-promise";
-import * as queryString                                                                                    from "query-string";
+import * as qs                                                                                             from "querystringify";
 import * as endpoints                                                                                      from "../endpoints";
 import { WalletRequestType }                                                                               from "../request-types";
 import { IWalletRequestData, IWalletRequest, IPreferredWindowState, IGenericWalletOptions, IWalletResult } from "../wallet";
@@ -22,7 +22,7 @@ export class TestRequest implements IWalletRequest {
     public initiate(): Promise<IWalletResult> {
         if(this._preferredWindowState === "overlay")  {
             const iframe = document.createElement("iframe");
-            const url    = `${endpoints.epayZero.testClient}/?${queryString.stringify(this.data)}`; 
+            const url    = `${endpoints.epayZero.testClient}/?${qs.stringify(this.data)}`; 
 
             iframe.setAttribute("src", url);
 

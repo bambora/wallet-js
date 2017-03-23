@@ -12,7 +12,7 @@ export default function getWalletRequestType(walletName: string): IWalletRequest
 
     walletName = walletName.toLowerCase();
 
-    if(walletRequestTypes[walletName])
+    if (walletRequestTypes[walletName])
         return walletRequestTypes[walletName];
 
     throw new ReferenceError(`The wallet type "${walletName}" could not be found.`);
@@ -27,9 +27,9 @@ export function WalletRequestType(walletName: string) {
 
     return function(walletRequestConstructable: IWalletRequestConstructable) {
         walletRequestTypes[walletName] = walletRequestConstructable;
-    }
+    };
 }
 
 // Get the clients
 import * as clients from "./clients";
-clients;
+clients; // tslint:disable-line

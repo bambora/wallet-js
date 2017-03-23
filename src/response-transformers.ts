@@ -16,13 +16,12 @@ export default function getWalletResponseTransformer(walletName: string): IWalle
 
     walletName = walletName.toLowerCase();
 
-    if(walletResponseTransformers[walletName])
+    if (walletResponseTransformers[walletName])
         return new walletResponseTransformers[walletName]();
 
     // Otherwise just do nothing
     return null;
 }
-
 
 // Decorator
 export function WalletResponseTransformer(walletName: string) {
@@ -33,5 +32,5 @@ export function WalletResponseTransformer(walletName: string) {
 
     return function(walletTransformerConstructable: IWalletResponseTransformerConstructable) {
         walletResponseTransformers[walletName] = walletTransformerConstructable;
-    }
-}
+    };
+};

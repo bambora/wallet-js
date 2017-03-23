@@ -1,14 +1,15 @@
 import Wallet from "./wallet";
 
-if(window) {
+if (window) {
     window.Bambora        = window.Bambora        || {};
     window.Bambora.Wallet = window.Bambora.Wallet || Wallet;
 }
 
 // Browser
+// tslint:disable
 declare global {
-    module Bambora {
-        const Wallet: IWalletConstructable;
+    interface Bambora {
+        Wallet: IWalletConstructable;
     }
 
     interface Window {
@@ -17,6 +18,7 @@ declare global {
         };
     }
 }
+// tslint:enable
 
 export interface IWalletConstructable {
     new(): Wallet;

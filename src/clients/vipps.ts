@@ -1,5 +1,5 @@
-import { Promise }                                                                                                                       from "es6-promise";
 import * as fetch                                                                                                                        from "isomorphic-fetch";
+import { Promise }                                                                                                                       from "es6-promise";
 import { EventEmitter }                                                                                                                  from "eventemitter3";
 import { AuthorizationError, ConnectionError, NoResponseError }                                                                          from "../errors";
 import { WalletRequestType }                                                                                                             from "../request-types";
@@ -36,7 +36,7 @@ export class VippsRequest implements IWalletRequest {
                 maximumRetries
             });
 
-            function onPollRequestRejected(error?): Promise<IWalletResult> { //TODO: Move outside and call it in onParseFulfilled in if (!response.meta.result)
+            function onPollRequestRejected(error?): Promise<IWalletResult> {
                 if (retries >= maximumRetries)
                     throw new ConnectionError("The maximum number of retries has been exceeded.");
 

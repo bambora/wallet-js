@@ -1,0 +1,19 @@
+{
+    "extends": [
+        "tslint:recommended"
+    ],
+    "rules": {
+        "typedef-whitespace": [
+            true,
+            {
+                "property-declaration": "unset"
+            }
+        ],
+        "variable-name": [
+            "check-format",
+            "allow-leading-underscore",
+            "allow-trailing-underscore"
+        ],
+        "curly": false // Change to "next-line-single-line" after next major tslint release
+    }
+}
