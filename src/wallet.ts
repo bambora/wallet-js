@@ -18,10 +18,15 @@ export default class Wallet {
 
     public events = new EventEmitter();
 
-    private _walletService = null;
+    private _walletService        : typeof WalletService        = null;
+    private _getWalletRequestType : typeof getWalletRequestType = null;
 
-    constructor(walletService?: IConstructable<WalletService>) {
-        this._walletService = walletService ? new walletService() : new WalletService();
+    constructor(
+        walletServiceConstructable? : typeof WalletService,
+        getWalletRequestTypeFn?     : typeof getWalletRequestType,
+    ) {
+        this._walletService        = walletServiceConstructable || WalletService;
+        this._getWalletRequestType = getWalletRequestTypeFn || getWalletRequestType;
     }
 
     public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<IWalletResult> {
@@ -29,10 +34,11 @@ export default class Wallet {
         options.events               = this.events;
 
         const walletService  = new this._walletService(options);
+
         const sessionPromise = walletService.getSession(sessionId)
             .then(
                 function onGetSessionFulfilled(response) {
-                    const walletRequestConstructable = getWalletRequestType(response.session.walletname);
+                    const walletRequestConstructable = this._getWalletRequestType(response.session.walletname);
                     const walletOptions              = Wallet.getWalletOptions(response.session.data);
                     const walletRequest              = new walletRequestConstructable(walletOptions, options);
 
@@ -55,10 +61,6 @@ export interface IGenericWalletOptions {
     defaultHeaders?       : any;                   // default : undefined
     events?               : EventEmitter;          // default : undefined
     pollTimeout?          : number;                // default : 120 (seconds)
-}
-
-export interface IConstructable<T> {
-    new(): T;
 }
 
 export interface IKeyValueType<T> {

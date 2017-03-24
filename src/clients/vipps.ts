@@ -22,15 +22,19 @@ export class VippsRequest implements IWalletRequest {
     private _preferredWindowState : IPreferredWindowState;
     private _events               : EventEmitter;
     private _pollTimeout          : number;
+    private _fetch                : typeof fetch;
 
     constructor(
-        private data: IVippsRequestData,
-        options?: IGenericWalletOptions,
+        private data : IVippsRequestData,
+        options?     : IGenericWalletOptions,
+        fetchFn?     : typeof fetch,
     ) {
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
             this._events               = options.events;
         }
+
+        this._fetch = fetchFn || fetch;
     }
 
     public initiate(): Promise<IWalletResult> {
@@ -61,7 +65,7 @@ export class VippsRequest implements IWalletRequest {
                 );
             }
 
-            return fetch(url, { headers: { Accept: "application/json" } })
+            return (this._fetch as typeof fetch)(url, { headers: { Accept: "application/json" } })
                 .then<IPollResponse>(
                     response => response.json(),
                     onPollRequestRejected,

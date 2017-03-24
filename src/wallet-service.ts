@@ -4,7 +4,7 @@ import * as endpoints                                        from "./endpoints";
 import getWalletResponseTransformer                          from "./response-transformers";
 import { IGenericWalletOptions, IWalletName, IKeyValueType } from  "./wallet";
 
-export default class WalletService {
+export default class WalletService implements IWalletService {
     private _endpoint = endpoints.epayZero.walletApi;
 
     private _defaultHeaders = {
@@ -39,6 +39,10 @@ export default class WalletService {
 
         return promise;
     }
+}
+
+export interface IWalletService {
+    getSession: (sessionId: string) => Promise<IValidWalletSessionResponse>;
 }
 
 export interface IWalletSessionResponse {
