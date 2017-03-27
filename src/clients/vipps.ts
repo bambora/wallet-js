@@ -29,12 +29,12 @@ export class VippsRequest implements IWalletRequest {
         options?     : IGenericWalletOptions,
         fetchFn?     : typeof fetch,
     ) {
+        this._fetch = fetchFn || fetch;
+
         if (options && options.preferredWindowState) {
             this._preferredWindowState = options.preferredWindowState;
             this._events               = options.events;
         }
-
-        this._fetch = fetchFn || fetch;
     }
 
     public initiate(): Promise<IWalletResult> {

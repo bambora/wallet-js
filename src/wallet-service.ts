@@ -11,7 +11,17 @@ export default class WalletService implements IWalletService {
         Accept: "application/json, text/plain, */*",
     };
 
-    constructor(options?: IGenericWalletOptions) {
+    private _fetch                        : typeof fetch = null;
+    private _getWalletResponseTransformer : typeof getWalletResponseTransformer = null;
+
+    constructor(
+        options?                        : IGenericWalletOptions,
+        fetchFn?                        : typeof fetch,
+        getWalletResponseTransformerFn? : typeof getWalletResponseTransformer,
+    ) {
+        this._fetch                        = fetchFn || fetch;
+        this._getWalletResponseTransformer = getWalletResponseTransformerFn || getWalletResponseTransformer;
+
         if (options) {
             if (options.endpoint)
                 this._endpoint = options.endpoint;
@@ -22,14 +32,14 @@ export default class WalletService implements IWalletService {
     }
 
     public getSession(sessionId: string): Promise<IValidWalletSessionResponse> {
-        const promise = fetch(`${this._endpoint}/sessions/${sessionId}`, {
+        const promise = this._fetch(`${this._endpoint}/sessions/${sessionId}`, {
             headers: this._defaultHeaders,
         })
 
         .then<IWalletSessionResponse>(response => response.json())
 
         .then<IValidWalletSessionResponse>(jsonResponse => {
-            const transformer = getWalletResponseTransformer(jsonResponse.session.walletname);
+            const transformer = this._getWalletResponseTransformer(jsonResponse.session.walletname);
 
             if (transformer)
                 return transformer.transform(jsonResponse);
@@ -43,6 +53,10 @@ export default class WalletService implements IWalletService {
 
 export interface IWalletService {
     getSession: (sessionId: string) => Promise<IValidWalletSessionResponse>;
+}
+
+export interface IWalletServiceConstructable {
+    new(options?: IGenericWalletOptions): IWalletService;
 }
 
 export interface IWalletSessionResponse {

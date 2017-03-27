@@ -1,7 +1,10 @@
 import { Promise }          from "es6-promise";
 import { EventEmitter }     from "eventemitter3";
 import getWalletRequestType from "./request-types";
-import WalletService        from "./wallet-service";
+import WalletService, {
+    IWalletService,
+    IWalletServiceConstructable,
+}                           from "./wallet-service";
 
 export default class Wallet {
     private static getWalletOptions(responseData: Array<IKeyValueType<any>>): IWalletRequestData {
@@ -18,11 +21,11 @@ export default class Wallet {
 
     public events = new EventEmitter();
 
-    private _walletService        : typeof WalletService        = null;
+    private _walletService        : IWalletServiceConstructable = null;
     private _getWalletRequestType : typeof getWalletRequestType = null;
 
     constructor(
-        walletServiceConstructable? : typeof WalletService,
+        walletServiceConstructable? : IWalletServiceConstructable,
         getWalletRequestTypeFn?     : typeof getWalletRequestType,
     ) {
         this._walletService        = walletServiceConstructable || WalletService;
@@ -33,12 +36,13 @@ export default class Wallet {
         options.preferredWindowState = options.preferredWindowState || "overlay";
         options.events               = this.events;
 
-        const walletService  = new this._walletService(options);
+        const walletService        = new this._walletService(options);
+        const getWalletRequestType = this._getWalletRequestType;
 
         const sessionPromise = walletService.getSession(sessionId)
             .then(
                 function onGetSessionFulfilled(response) {
-                    const walletRequestConstructable = this._getWalletRequestType(response.session.walletname);
+                    const walletRequestConstructable = getWalletRequestType(response.session.walletname);
                     const walletOptions              = Wallet.getWalletOptions(response.session.data);
                     const walletRequest              = new walletRequestConstructable(walletOptions, options);
 
@@ -66,7 +70,7 @@ export interface IGenericWalletOptions {
 export interface IKeyValueType<T> {
     key   : string;
     value : T;
-    type  : "string" | "array";
+    type? : "string" | "array";
 }
 
 // Request
