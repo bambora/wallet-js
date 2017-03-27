@@ -1,4 +1,4 @@
-import * as fetch            from "isomorphic-fetch";
+import "isomorphic-fetch";
 import { Promise }           from "es6-promise";
 import { EventEmitter }      from "eventemitter3";
 import { WalletRequestType } from "../request-types";
@@ -31,25 +31,26 @@ export class VippsRequest implements IWalletRequest {
     ) {
         this._fetch = fetchFn || fetch;
 
-        if (options && options.preferredWindowState) {
-            this._preferredWindowState = options.preferredWindowState;
-            this._events               = options.events;
+        if (options) {
+            if (options.preferredWindowState)
+                this._preferredWindowState = options.preferredWindowState;
+
+            if (options.events)
+                this._events = options.events;
         }
     }
 
     public initiate(): Promise<IWalletResult> {
         const { url, method } = this.data;
         var events            = this._events;
+        var fetch             = this._fetch;
 
         if (method === "Redirect") location.href = url;
 
         function poll(retries = 0): Promise<IWalletResult> {
             const maximumRetries = 15;
 
-            events.emit("pollRequestInitiated", {
-                retries,
-                maximumRetries,
-            });
+            if (events) events.emit("pollRequestInitiated", { retries, maximumRetries });
 
             function onPollRequestRejected(error?): Promise<IWalletResult> {
                 if (retries >= maximumRetries)
@@ -65,14 +66,14 @@ export class VippsRequest implements IWalletRequest {
                 );
             }
 
-            return (this._fetch as typeof fetch)(url, { headers: { Accept: "application/json" } })
+            return fetch(url, { headers: { Accept: "application/json" } })
                 .then<IPollResponse>(
                     response => response.json(),
                     onPollRequestRejected,
                 )
                 .then(
                     function onPollParseFulfilled(response): Promise<IWalletResult> {
-                        events.emit("pollRequestFulfilled", response);
+                        if (events) events.emit("pollRequestFulfilled", response);
 
                         if (!response || !response.meta)
                             throw new NoResponseError("The response was empty.");

@@ -1,61 +1,38 @@
+// Test framework dependencies
 import "mocha";
-import * as chai            from "chai";
-import * as chaiAsPromised  from "chai-as-promised";
-import * as sinon           from "sinon";
+import * as chai           from "chai";
+import * as chaiAsPromised from "chai-as-promised";
+import * as sinon          from "sinon";
 
 const expect = chai.expect;
 chai.use(chaiAsPromised);
 
+// Implementation depencies and mocks
 import { Promise }          from "es6-promise";
-import Wallet, {
-    IWalletRequestData,
-    IGenericWalletOptions,
-    IWalletResult,
-}                           from "../src/wallet";
-import WalletService, {
-    IWalletService,
-    IWalletServiceConstructable,
-    IValidWalletSessionResponse,
-}                           from "../src/wallet-service";
+import Wallet               from "../src/wallet";
+import WalletService        from "../src/wallet-service";
 import getWalletRequestType from "../src/request-types";
-import { IWalletRequest }   from "../src/wallet";
-
-function mockWalletService(response: IValidWalletSessionResponse): IWalletServiceConstructable {
-    return class Mock {
-        public getSession(sessionId: string): Promise<IValidWalletSessionResponse> {
-            return Promise.resolve(response);
-        }
-    };
-}
-
-function mockGetWalletRequestType(walletResult: IWalletResult): typeof getWalletRequestType {
-    return (walletName: string) => {
-        return class Mock {
-            constructor(data: IWalletRequestData, options?: IGenericWalletOptions) { /*.*/ }
-
-            public initiate(): Promise<IWalletResult> {
-                return Promise.resolve(walletResult);
-            }
-        };
-    };
-}
+import {
+    mockWalletService,
+    mockGetWalletRequestType,
+}                           from "./mocks";
 
 describe("Open wallet session", () => {
 
     it("should eventually return a wallet result", () => {
-        const walletService = mockWalletService({
+        const walletServiceMock = mockWalletService({
             session: {
                 data       : [{ key : "mock", value: "data" }],
                 walletname : "Test",
             },
         });
 
-        const getWalletRequestType = mockGetWalletRequestType({
+        const getWalletRequestTypeMock = mockGetWalletRequestType({
             data       : "mock data",
             walletName : "Test",
         });
 
-        const wallet = new Wallet(walletService, getWalletRequestType);
+        const wallet = new Wallet(walletServiceMock, getWalletRequestTypeMock);
 
         return expect(wallet.open("abcdef")).to.be.eventually.deep.equal({
             data       : "mock data",
@@ -64,20 +41,22 @@ describe("Open wallet session", () => {
     });
 
     it("should throw error when wallet type does not exist", () => {
-        const walletService = mockWalletService({
+        const walletServiceMock = mockWalletService({
             session: {
                 data       : [{ key : "mock", value: "data" }],
                 walletname : "Non-existent wallet name" as any,
             },
         });
 
-        const wallet = new Wallet(walletService);
+        const wallet = new Wallet(walletServiceMock);
+
+        const walletResultPromise = wallet.open("abcdef");
 
         return Promise.all([
-            expect(wallet.open("abcdef")).to.be.rejected,
+            expect(walletResultPromise).to.be.rejected,
 
-            wallet.open("abcdef").catch(error => {
-                expect(error instanceof ReferenceError).to.be.true;
+            walletResultPromise.catch(error => {
+                expect(error).to.be.instanceOf(ReferenceError);
                 expect(error.message).to.equal(`The wallet type "non-existent wallet name" could not be found.`);
             }),
         ]);

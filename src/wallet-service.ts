@@ -1,4 +1,4 @@
-import * as fetch                                            from "isomorphic-fetch";
+import "isomorphic-fetch";
 import { Promise }                                           from "es6-promise";
 import * as endpoints                                        from "./endpoints";
 import getWalletResponseTransformer                          from "./response-transformers";
