@@ -28,7 +28,7 @@ The `Wallet` constructor function is now accessible on window via `Bambora.Walle
 ### Modular approach
 **ES5:** `var Wallet = require("@bambora/wallet");`
 
-**TS/ES6:** `import Wallet from "@bambora/wallet;`
+**TS/ES6:** `import Wallet from "@bambora/wallet";`
 
 ### Integration
 Wallets are initiated as follows:
