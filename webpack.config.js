@@ -1,7 +1,7 @@
 const webpack = require("webpack");
 
 
-const isProduction = process.argv.indexOf('-p') !== -1;
+const isProduction = process.argv.indexOf("-p") !== -1;
 
 module.exports = {
     entry: {
@@ -12,7 +12,16 @@ module.exports = {
         filename: "[name].js",
     
     },
-    externals: {},
+    externals: [
+        {
+            "isomorphic-fetch": {
+                root      : "isomorphic-fetch",
+                commonjs2 : "isomorphic-fetch",
+                commonjs  : "isomorphic-fetch",
+                amd       : "isomorphic-fetch"
+            }
+        }
+    ],
     resolve: {
         extensions: [".webpack.js", ".web.js", ".ts", ".js"],
     },
