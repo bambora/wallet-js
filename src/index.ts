@@ -8,7 +8,11 @@ if (window) {
 // tslint:disable
 declare global {
     interface Bambora {
-        Wallet: typeof Wallet;
+        Wallet?: typeof Wallet;
+    }
+
+    interface Window {
+        Bambora: Bambora;
     }
 }
 // tslint:enable
