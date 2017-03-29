@@ -29,7 +29,7 @@ export class VippsRequest implements IWalletRequest {
         options?     : IGenericWalletOptions,
         fetchFn?     : typeof fetch,
     ) {
-        this._fetch = fetchFn || fetch;
+        this._fetch = fetchFn || fetch.bind(window);
 
         if (options) {
             if (options.preferredWindowState)

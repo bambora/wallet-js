@@ -19,7 +19,7 @@ export default class WalletService implements IWalletService {
         fetchFn?                        : typeof fetch,
         getWalletResponseTransformerFn? : typeof getWalletResponseTransformer,
     ) {
-        this._fetch                        = fetchFn || fetch;
+        this._fetch                        = fetchFn || fetch.bind(window);
         this._getWalletResponseTransformer = getWalletResponseTransformerFn || getWalletResponseTransformer;
 
         if (options) {
