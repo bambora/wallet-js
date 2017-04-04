@@ -16,7 +16,7 @@
     "url": "git+https://github.com/bambora/wallet.git"
   },
   "author": "Jesper Dalgas Zachariassen <jesper.zachariassen@bambora.com> (http://bambora.com)",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bambora/wallet/issues"
   },
