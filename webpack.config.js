@@ -10,7 +10,9 @@ module.exports = {
     output: {
         path: __dirname + "/dist",
         filename: "[name].js",
-    
+        library: "wallet",
+        libraryTarget: "umd",
+        umdNamedDefine: true
     },
     externals: [
         {
