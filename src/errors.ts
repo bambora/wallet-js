@@ -28,7 +28,7 @@ export class AuthorizationError extends Error {
 // tslint:disable
 declare global {
     interface ObjectConstructor {
-        setPrototypeOf: Function;
+        setPrototypeOf: any;
     }
 }
 // tslint:enable

@@ -69,10 +69,10 @@ export class VippsRequest implements IWalletRequest {
             return fetch(url, { headers: { Accept: "application/json" } })
                 .then<IPollResponse>(
                     response => response.json(),
-                    onPollRequestRejected,
+                    reason => Promise.reject(reason),
                 )
                 .then(
-                    function onPollParseFulfilled(response): Promise<IWalletResult> {
+                    function onPollParseFulfilled(response: IPollResponse): Promise<IWalletResult> {
                         if (events) events.emit("pollRequestFulfilled", response);
 
                         if (!response || !response.meta)
@@ -95,6 +95,7 @@ export class VippsRequest implements IWalletRequest {
                             walletName: "Vipps",
                         });
                     },
+                    onPollRequestRejected,
                 );
         }
 

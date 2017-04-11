@@ -11,7 +11,13 @@
     "suppressImplicitAnyIndexErrors" : true,
     "isolatedModules"                : false,
     "baseUrl"                        : ".",
-    "declaration"                    : true
+    "declaration"                    : true,
+    "lib": [
+      "dom",
+      "es5",
+      "es6",
+      "scripthost"
+    ]
   },
   "exclude": [
     "node_modules",

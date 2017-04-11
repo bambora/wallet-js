@@ -30,9 +30,7 @@
   "devDependencies": {
     "@types/chai": "~3.4.35",
     "@types/chai-as-promised": "0.0.30",
-    "@types/es6-promise": "0.0.32",
     "@types/fetch-mock": "^5.8.1",
-    "@types/isomorphic-fetch": "0.0.33",
     "@types/mocha": "~2.2.40",
     "@types/query-string": "~3.0.31",
     "@types/sinon": "^1.16.36",
