@@ -54,7 +54,7 @@ export class VippsRequest implements IWalletRequest {
 
             function onPollRequestRejected(error?): Promise<IWalletResult> {
                 if (retries >= maximumRetries)
-                    throw new ConnectionError("The maximum number of retries has been exceeded.");
+                    Promise.reject(new ConnectionError("The maximum number of retries has been exceeded."));
 
                 return new Promise<IWalletResult>(
                     resolve => {
@@ -76,7 +76,7 @@ export class VippsRequest implements IWalletRequest {
                         if (events) events.emit("pollRequestFulfilled", response);
 
                         if (!response || !response.meta)
-                            throw new NoResponseError("The response was empty.");
+                            Promise.reject(new NoResponseError("The response was empty."));
 
                         if (!response.meta.result)
                             return onPollRequestRejected();
@@ -84,7 +84,7 @@ export class VippsRequest implements IWalletRequest {
                         if (response.wait) return poll();
 
                         if (!response.authorizeresult)
-                            throw new AuthorizationError(response.meta.message.merchant);
+                            Promise.reject(new AuthorizationError(response.meta.message.merchant));
 
                         return Promise.resolve<IWalletResult>({
                             data: {
