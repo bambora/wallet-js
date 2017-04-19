@@ -1,14 +1,17 @@
 import Wallet from "./wallet";
+import * as errors from "./errors";
 
 if (window) {
-    window.Bambora        = window.Bambora        || {};
-    window.Bambora.Wallet = window.Bambora.Wallet || Wallet;
+    window.Bambora              = window.Bambora        || {};
+    window.Bambora.Wallet       = window.Bambora.Wallet || Wallet;
+    window.Bambora.WalletErrors = window.Bambora.WalletErrors || errors;
 }
 
 // tslint:disable
 declare global {
     interface Bambora {
         Wallet?: typeof Wallet;
+        WalletErrors?: typeof errors;
     }
 
     interface Window {
@@ -18,3 +21,4 @@ declare global {
 // tslint:enable
 
 export default Wallet;
+export { errors };
