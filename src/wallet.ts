@@ -1,10 +1,12 @@
-import { Promise }          from "es6-promise";
-import { EventEmitter }     from "eventemitter3";
-import getWalletRequestType from "./request-types";
+import { Promise, polyfill } from "es6-promise";
+polyfill();
+
+import { EventEmitter }      from "eventemitter3";
+import getWalletRequestType  from "./request-types";
 import WalletService, {
     IWalletService,
     IWalletServiceConstructable,
-}                           from "./wallet-service";
+}                            from "./wallet-service";
 
 export default class Wallet {
     private static getWalletOptions(responseData: Array<IKeyValueType<any>>): IWalletRequestData {
