@@ -3,6 +3,7 @@ import { Promise }                                           from "es6-promise";
 import * as endpoints                                        from "./endpoints";
 import getWalletResponseTransformer                          from "./response-transformers";
 import { IGenericWalletOptions, IWalletName, IKeyValueType } from  "./wallet";
+import "whatwg-fetch";
 
 export default class WalletService implements IWalletService {
     private _endpoint = endpoints.epayZero.walletApi;
