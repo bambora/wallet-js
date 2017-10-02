@@ -15,38 +15,39 @@
     "type": "git",
     "url": "git+https://github.com/bambora/wallet.git"
   },
-  "author": "Jesper Dalgas Zachariassen <jesper.zachariassen@bambora.com> (http://bambora.com)",
+  "author":
+    "Jesper Dalgas Zachariassen <jesper.zachariassen@bambora.com> (http://bambora.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bambora/wallet/issues"
   },
   "homepage": "https://github.com/bambora/wallet#readme",
   "dependencies": {
-    "es6-promise": "~4.0.5",
-    "eventemitter3": "~2.0.2",
-    "querystringify": "~1.0.0",
-	"isomorphic-fetch": "~2.2.1",
-    "whatwg-fetch": "^2.0.3"
+    "es6-promise": "4.0.5",
+    "eventemitter3": "2.0.2",
+    "querystringify": "1.0.0",
+    "isomorphic-fetch": "2.2.1",
+    "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
-    "@types/chai": "~3.4.35",
+    "@types/chai": "3.4.35",
     "@types/chai-as-promised": "0.0.30",
-    "@types/fetch-mock": "^5.8.1",
-    "@types/mocha": "~2.2.40",
-    "@types/query-string": "~3.0.31",
-    "@types/sinon": "^1.16.36",
-    "babel": "~6.5.2",
-    "chai": "~3.5.0",
-    "chai-as-promised": "^6.0.0",
-    "fetch-mock": "^5.9.4",
-    "mocha": "~3.2.0",
-    "rimraf": "~2.5.4",
-    "sinon": "~2.0.0",
-    "ts-loader": "~1.2.2",
-    "ts-node": "~3.0.2",
-    "tslint": "~4.5.1",
-    "typescript": "~2.2.0",
-    "webpack": "~2.1.0-beta.27",
-    "webpack-dev-server": "~2.1.0-beta.9"
+    "@types/fetch-mock": "5.8.1",
+    "@types/mocha": "2.2.40",
+    "@types/query-string": "3.0.31",
+    "@types/sinon": "1.16.36",
+    "babel": "6.5.2",
+    "chai": "3.5.0",
+    "chai-as-promised": "6.0.0",
+    "fetch-mock": "5.9.4",
+    "mocha": "3.2.0",
+    "rimraf": "2.5.4",
+    "sinon": "2.0.0",
+    "ts-loader": "1.2.2",
+    "ts-node": "3.0.2",
+    "tslint": "4.5.1",
+    "typescript": "2.2.0",
+    "webpack": "2.1.0-beta.27",
+    "webpack-dev-server": "2.1.0-beta.9"
   }
 }
