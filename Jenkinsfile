@@ -15,7 +15,8 @@ node("docker-concurrent") {
 
     stage("Publish to Bambora CDN") {
         if (env.BRANCH_NAME == "master") {
-            sh "aws --region eu-west-1 s3 mv \"\$PWD\"/dist/index.js s3://bambora-static-prod-eu-west-1/wallet/wallet.min.js"
+            s3Upload(file: "./dist/index.js", bucket: "bambora-static-prod-eu-west-1", path: "/wallet/wallet.min.js")
+            // sh "aws --region eu-west-1 s3 mv \"\$PWD\"/dist/index.js s3://bambora-static-prod-eu-west-1/wallet/wallet.min.js"
         }
     }
 }
