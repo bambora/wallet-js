@@ -15,6 +15,7 @@
     "lib": [
       "dom",
       "es5",
+      "es6",
       "scripthost"
     ]
   },

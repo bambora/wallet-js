@@ -1,4 +1,3 @@
-import { Promise }                   from "es6-promise";
 import * as endpoints                from "../endpoints";
 import { WalletRequestType }         from "../request-types";
 import { WalletResponseTransformer } from "../response-transformers";

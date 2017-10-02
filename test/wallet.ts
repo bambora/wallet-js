@@ -8,7 +8,6 @@ const expect = chai.expect;
 chai.use(chaiAsPromised);
 
 // Implementation depencies and mocks
-import { Promise }          from "es6-promise";
 import Wallet               from "../src/wallet";
 import WalletService        from "../src/wallet-service";
 import getWalletRequestType from "../src/request-types";

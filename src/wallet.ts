@@ -1,6 +1,3 @@
-import { Promise, polyfill } from "es6-promise";
-polyfill();
-
 import { EventEmitter }      from "eventemitter3";
 import getWalletRequestType  from "./request-types";
 import WalletService, {

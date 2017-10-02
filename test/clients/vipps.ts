@@ -11,16 +11,14 @@ chai.use(chaiAsPromised);
 import "isomorphic-fetch";
 import * as fetchMock   from "fetch-mock";
 import { EventEmitter } from "eventemitter3";
-import {
-    VippsRequest,
-    IPollResponse,
-}                       from "../../src/clients/vipps";
+import { VippsRequest } from "../../src/clients/vipps";
+import { IWalletResult } from "../../src/wallet";
 
 describe("Initiate Vipps request", () => {
 
     it("should eventually return a wallet result", () => {
-        const response: IPollResponse = {
-            authorizeresult: true,
+        const response: IWalletResult["data"] = {
+            authorizeResult: true,
             meta: {
                 action: {
                     code   : null,
@@ -50,8 +48,8 @@ describe("Initiate Vipps request", () => {
             fetchMockFn,
         );
 
-        const walletResultPromise = request.initiate();
-
+        const walletResultPromise = request.initiate().then(result => result.data);
+ 
         expect(walletResultPromise).to.eventually.deep.equal(response);
     });
 

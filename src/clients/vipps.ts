@@ -1,5 +1,3 @@
-import "isomorphic-fetch";
-import { Promise }           from "es6-promise";
 import { EventEmitter }      from "eventemitter3";
 import { WalletRequestType } from "../request-types";
 import {
