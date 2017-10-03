@@ -13,7 +13,7 @@ node("docker-concurrent") {
     try {
         gitTag = getGitTag()
         hasGitTag = true
-    } catch {
+    } catch(error) {
         hasGitTag = false
     }
 
