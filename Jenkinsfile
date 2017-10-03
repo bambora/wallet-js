@@ -17,16 +17,14 @@ node("docker-concurrent") {
 
     stage("Publish to Bambora CDN") {
         if (env.BRANCH_NAME == "master") {
-            utils.slack("Commenced upload of `/wallet/latest/wallet.min.js`.", "#static-ci", "info")
             s3Upload(file: "dist/index.js", bucket: "bambora-static-prod-eu-west-1", path: "wallet/latest/wallet.min.js")
         }
     }
-    post {
-        success {
-            utils.slack("Completed upload of `wallet/latest/wallet.min.js`.", "#static-ci", "good")
-        }
-        failure {
-            utils.slack("Failed to upload `wallet/latest/wallet.min.js`!", "#static-ci", "danger")
+
+    stage("Invalidate Bambora CDN Cache") {
+        if (env.BRANCH_NAME == "master") {
+            def outputs = cfnDescribe(stack:"Static-Prod")
+            cfInvalidate(distribution:outputs.get("Distribution"), paths:["/wallet/latest/*"])
         }
     }
 }
