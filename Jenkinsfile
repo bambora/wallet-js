@@ -50,7 +50,7 @@ node("docker-concurrent") {
             cfInvalidate(
                 distribution: outputs.get("Distribution"),
                 paths: [
-                    "/wallet/latest/*"
+                    "/wallet/latest/*",
                     "/wallet/${gitTag}/*"
                 ]
             )
