@@ -1,7 +1,6 @@
 import * as promise from "es6-promise";
 promise.polyfill();
 import "whatwg-fetch";
-console.warn("fetch", fetch)
 
 import Wallet from "./wallet";
 import * as errors from "./errors";
