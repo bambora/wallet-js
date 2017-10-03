@@ -13,8 +13,10 @@ node("docker-concurrent") {
     try {
         gitTag = getGitTag()
         hasGitTag = true
+        echo "Has git tag ${gitTag}"
     } catch(error) {
         hasGitTag = false
+        echo "Has no git tag"
     }
 
     stage("Build") {
@@ -24,6 +26,8 @@ node("docker-concurrent") {
                 env.NODE_ENV = "production"
                 sh "npm run build"
             }
+        } else {
+            echo "Nothing to build"
         }
     }
 
@@ -40,6 +44,8 @@ node("docker-concurrent") {
                 bucket: "bambora-static-prod-eu-west-1",
                 path: "wallet/${gitTag}/wallet.min.js"
             )
+        } else {
+            echo "Nothing to publish"
         }
     }
 
@@ -54,6 +60,8 @@ node("docker-concurrent") {
                     "/wallet/${gitTag}/*"
                 ]
             )
+        } else {
+            echo "Nothing to invalidate"
         }
     }
 }
