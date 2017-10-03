@@ -10,6 +10,9 @@ def getGitTag() {
 node("docker-concurrent") {
     checkout scm
 
+    def tag = sh script: "git describe --tags", returnStdout: true
+    echo "Tag is ${tag}"
+
     try {
         gitTag = getGitTag()
         hasGitTag = true
