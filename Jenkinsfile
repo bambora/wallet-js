@@ -11,7 +11,11 @@ def getGitTag() {
 node("docker-concurrent") {
     checkout scm
 
-    withCredentials([[(credentialsId: "public-npm-repository", variable: "PUBLIC_NPM_API_TOKEN")]]) {
+    withCredentials([[
+        $class: "UsernamePasswordBinding",
+        credentialsId: "public-npm-repository",
+        variable: "PUBLIC_NPM_API_TOKEN"
+    ]]) {
         sh "echo $PUBLIC_NPM_API_TOKEN"
     }
 
