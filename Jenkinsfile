@@ -4,7 +4,7 @@ def utils = new com.bambora.jenkins.pipeline.Utils()
 
 def getGitTag() {
     def tag = sh script: "git describe --exact-match --tags \$(git log -n1 --pretty='%h')", returnStdout: true
-    return tag
+    return tag.trim()
 }
 
 node("docker-concurrent") {
