@@ -70,7 +70,7 @@ node("docker-concurrent") {
   }
 
   stage("Publish to Bambora CDN") {
-    if (env.BRANCH_NAME == "master" && hasGitTag) {
+    if (!(env.BRANCH_NAME == "master" && hasGitTag)) {
       echo "Nothing to publish"
       return
     }
@@ -100,7 +100,7 @@ Alternate link: https://static.bambora.com/wallet/${gitTag}/wallet.min.js""")
   }
 
   stage("Invalidate Bambora CDN Cache") {
-    if (env.BRANCH_NAME == "master" && hasGitTag) {
+    if (!(env.BRANCH_NAME == "master" && hasGitTag)) {
       echo "Nothing to invalidate"
       return
     }
@@ -126,7 +126,7 @@ Alternate link: https://static.bambora.com/wallet/${gitTag}/wallet.min.js""")
   }
 
   stage("Publish to public NPM") {
-    if (env.BRANCH_NAME == "master" && hasGitTag) {
+    if (!(env.BRANCH_NAME == "master" && hasGitTag)) {
       echo "Nothing to publish"
       return
     }
