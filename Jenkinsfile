@@ -12,7 +12,7 @@ node("docker-concurrent") {
     checkout scm
 
     withCredentials([[
-        $class: "UsernamePasswordBinding",
+        $class: "StringBinding",
         credentialsId: "public-npm-repository",
         variable: "PUBLIC_NPM_API_TOKEN"
     ]]) {
