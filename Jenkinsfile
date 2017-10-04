@@ -3,12 +3,17 @@
 def utils = new com.bambora.jenkins.pipeline.Utils()
 
 def getGitTag() {
+    sh "git fetch --tags"
     def tag = sh script: "git describe --exact-match --tags \$(git log -n1 --pretty='%h')", returnStdout: true
     return tag
 }
 
 node("docker-concurrent") {
     checkout scm
+
+    withCredentials([[(credentialsId: "public-npm-repository", variable: "PUBLIC_NPM_API_TOKEN")]]) {
+        sh "echo $PUBLIC_NPM_API_TOKEN"
+    }
 
     def tag = sh script: "git describe --tags", returnStdout: true
     echo "Tag is ${tag}"
