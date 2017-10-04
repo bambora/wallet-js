@@ -3,25 +3,13 @@
 def utils = new com.bambora.jenkins.pipeline.Utils()
 
 def getGitTag() {
-    sh "git fetch --tags"
     def tag = sh script: "git describe --exact-match --tags \$(git log -n1 --pretty='%h')", returnStdout: true
     return tag
 }
 
 node("docker-concurrent") {
     checkout scm
-
-    withCredentials([[
-        $class: "StringBinding",
-        credentialsId: "public-npm-repository",
-        variable: "PUBLIC_NPM_API_TOKEN"
-    ]]) {
-        sh "echo $PUBLIC_NPM_API_TOKEN"
-    }
-
     sh "git fetch --tags"
-    def tag = sh script: "git describe --tags", returnStdout: true
-    echo "Tag is ${tag}"
 
     try {
         gitTag = getGitTag()
@@ -75,6 +63,21 @@ node("docker-concurrent") {
             )
         } else {
             echo "Nothing to invalidate"
+        }
+    }
+
+    stage("Publish to public NPM") {
+        if (env.BRANCH_NAME == "master" && hasGitTag) {
+            withCredentials([[
+                $class: "StringBinding",
+                credentialsId: "public-npm-repository",
+                variable: "NPM_AUTH_TOKEN"
+            ]]) {
+                sh "echo '//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN' > .npmrc"
+                sh "npm publish --access public"
+            }
+        } else {
+            echo "Nothing to publish"
         }
     }
 }
