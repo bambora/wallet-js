@@ -73,8 +73,10 @@ node("docker-concurrent") {
                 credentialsId: "public-npm-repository",
                 variable: "NPM_AUTH_TOKEN"
             ]]) {
-                sh "echo '//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN' > .npmrc"
-                sh "npm publish --access public"
+                docker.image("node:7.0").inside("-u 0:0") {
+                    sh "echo '//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN' > .npmrc"
+                    sh "npm publish --access public"
+                }
             }
         } else {
             echo "Nothing to publish"
