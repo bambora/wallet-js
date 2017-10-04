@@ -19,6 +19,7 @@ node("docker-concurrent") {
         sh "echo $PUBLIC_NPM_API_TOKEN"
     }
 
+    sh "git fetch --tags"
     def tag = sh script: "git describe --tags", returnStdout: true
     echo "Tag is ${tag}"
 
