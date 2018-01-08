@@ -18,6 +18,7 @@ import {
 @WalletRequestType("Vipps")
 export class VippsRequest implements IWalletRequest {
     private _preferredWindowState : IPreferredWindowState;
+    private _walletEndpoint       : string;
     private _events               : EventEmitter;
     private _pollTimeout          : number;
     private _fetch                : typeof fetch;
@@ -30,11 +31,17 @@ export class VippsRequest implements IWalletRequest {
         this._fetch = fetchFn || fetch.bind(window);
 
         if (options) {
-            if (options.preferredWindowState)
+            if (options.preferredWindowState) {
                 this._preferredWindowState = options.preferredWindowState;
+            }
 
-            if (options.events)
+            if (options.walletEndpoint) {
+                this._walletEndpoint = options.walletEndpoint;
+            }
+
+            if (options.events) {
                 this._events = options.events;
+            }
         }
     }
 

@@ -4,7 +4,7 @@ export const masterPass = {
 };
 
 export const mobilePay = {
-    productionClient: "https://publicmobilepay.danskebank.com/P2O/MobilePay3/MobilePayOnline.aspx",
+    productionClient: "https://public.mobilepay.dk/p2o/router/address/router.aspx",
 };
 
 export const epayZero = {

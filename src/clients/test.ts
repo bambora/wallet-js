@@ -12,21 +12,28 @@ import {
 @WalletRequestType("Test")
 export class TestRequest implements IWalletRequest {
     private _preferredWindowState : IPreferredWindowState;
+    private _walletEndpoint       : string;
     private _backdrop             : HTMLDivElement;
 
     constructor(
         private data: ITestRequestData,
         options?: IGenericWalletOptions,
     ) {
-        if (options && options.preferredWindowState) {
-            this._preferredWindowState = options.preferredWindowState;
+        if (options) {
+            if (options.preferredWindowState) {
+                this._preferredWindowState = options.preferredWindowState;
+            }
+
+            if (options.walletEndpoint) {
+                this._walletEndpoint = options.walletEndpoint;
+            }
         }
     }
 
     public initiate(): Promise<IWalletResult> {
         if (this._preferredWindowState === "overlay")  {
             const iframe = document.createElement("iframe");
-            const url    = `${endpoints.epayZero.testClient}/?${qs.stringify(this.data)}`;
+            const url    = `${this._walletEndpoint || endpoints.epayZero.testClient}/?${qs.stringify(this.data)}`;
 
             iframe.setAttribute("src", url);
 
@@ -83,7 +90,7 @@ export class TestRequest implements IWalletRequest {
 
         const form = document.createElement("form");
 
-        form.action = endpoints.epayZero.testClient;
+        form.action = this._walletEndpoint || endpoints.epayZero.testClient;
         form.method = "GET";
         form.target = "_self";
 

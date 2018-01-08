@@ -17,13 +17,20 @@ import {
 export class MasterPassRequest implements IWalletRequest {
     private _script               : HTMLScriptElement;
     private _preferredWindowState : IPreferredWindowState;
+    private _walletEndpoint       : string;
 
     constructor(
         private data : IMasterPassRequestData,
         options?     : IGenericWalletOptions,
     ) {
-        if (options && options.preferredWindowState) {
-            this._preferredWindowState = options.preferredWindowState;
+        if (options) {
+            if (options.preferredWindowState) {
+                this._preferredWindowState = options.preferredWindowState;
+            }
+
+            if (options.walletEndpoint) {
+                this._walletEndpoint = options.walletEndpoint;
+            }
         }
     }
 
@@ -63,7 +70,7 @@ export class MasterPassRequest implements IWalletRequest {
                 this._script = this._script || document.createElement("script");
 
                 this._script.async = false;
-                this._script.src   = endpoints.masterPass.productionClientApi;
+                this._script.src   = this._walletEndpoint || endpoints.masterPass.productionClientApi;
 
                 this._script.onload  = event => resolve(event);
                 this._script.onerror = event => reject(event);

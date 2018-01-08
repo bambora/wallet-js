@@ -10,23 +10,32 @@ import {
 
 @WalletRequestType("MobilePay")
 export class MobilePayRequest implements IWalletRequest {
-    private _preferredWindowState: IPreferredWindowState;
+    private _preferredWindowState : IPreferredWindowState;
+    private _walletEndpoint       : string;
 
     constructor(
         private data : IMobilePayRequestData,
         options?     : IGenericWalletOptions,
     ) {
-        if (options && options.preferredWindowState) {
-            this._preferredWindowState = options.preferredWindowState;
+        if (options) {
+            if (options.preferredWindowState) {
+                this._preferredWindowState = options.preferredWindowState;
+            }
+
+            if (options.walletEndpoint) {
+                this._walletEndpoint = options.walletEndpoint;
+            }
         }
     }
 
     public initiate(): Promise<IWalletResult> {
         const form = document.createElement("form");
 
-        form.action = endpoints.mobilePay.productionClient;
+        form.action = this._walletEndpoint || endpoints.mobilePay.productionClient;
         form.method = "POST";
         form.target = "_self";
+
+        if (!this.data.Version) this.data.Version = "1";
 
         for (let key in this.data) {
             if (this.data.hasOwnProperty(key)) {
@@ -52,4 +61,5 @@ export class MobilePayRequest implements IWalletRequest {
 export interface IMobilePayRequestData extends IWalletRequestData {
     SessionToken : string;
     PhoneNumber? : string;
+    Version?     : string;
 }
