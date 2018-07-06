@@ -12,10 +12,11 @@ import {
 export class MobilePayRequest implements IWalletRequest {
     private _preferredWindowState : IPreferredWindowState;
     private _walletEndpoint       : string;
+    private _target               : string = "_self";
 
     constructor(
         private data : IMobilePayRequestData,
-        options?     : IGenericWalletOptions,
+        options?     : IMobilePayOptions,
     ) {
         if (options) {
             if (options.preferredWindowState) {
@@ -25,6 +26,10 @@ export class MobilePayRequest implements IWalletRequest {
             if (options.walletEndpoint) {
                 this._walletEndpoint = options.walletEndpoint;
             }
+
+            if (options.target) {
+                this._target = options.target;
+            }
         }
     }
 
@@ -33,7 +38,7 @@ export class MobilePayRequest implements IWalletRequest {
 
         form.action = this._walletEndpoint || endpoints.mobilePay.productionClient;
         form.method = "POST";
-        form.target = "_self";
+        form.target = this._target;
 
         if (!this.data.Version) this.data.Version = "1";
 
@@ -62,4 +67,8 @@ export interface IMobilePayRequestData extends IWalletRequestData {
     SessionToken : string;
     PhoneNumber? : string;
     Version?     : string;
+}
+
+export interface IMobilePayOptions extends IGenericWalletOptions {
+    target : string;
 }
