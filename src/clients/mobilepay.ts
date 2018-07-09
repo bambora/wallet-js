@@ -16,7 +16,7 @@ export class MobilePayRequest implements IWalletRequest {
 
     constructor(
         private data : IMobilePayRequestData,
-        options?     : IMobilePayOptions,
+        options?     : IGenericWalletOptions,
     ) {
         if (options) {
             if (options.preferredWindowState) {
@@ -67,8 +67,4 @@ export interface IMobilePayRequestData extends IWalletRequestData {
     SessionToken : string;
     PhoneNumber? : string;
     Version?     : string;
-}
-
-export interface IMobilePayOptions extends IGenericWalletOptions {
-    target : string;
 }

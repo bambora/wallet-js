@@ -65,6 +65,7 @@ export interface IGenericWalletOptions {
     events?               : EventEmitter;          // default : undefined
     pollTimeout?          : number;                // default : 120 (seconds)
     walletEndpoint?       : string;                // default : wallet endpoint default
+    target?               : string;                // default : "_self"
 }
 
 export interface IKeyValueType<T> {
