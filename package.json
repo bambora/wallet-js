@@ -34,6 +34,8 @@
     "@types/mocha": "2.2.40",
     "@types/query-string": "3.0.31",
     "@types/sinon": "1.16.36",
+    "@types/tapable": "1.0.4",
+    "@types/webpack": "4.4.13",
     "babel": "6.5.2",
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
