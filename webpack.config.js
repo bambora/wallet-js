@@ -16,11 +16,11 @@ module.exports = {
     },
     externals: [
         {
-            "isomorphic-fetch": {
-                root      : "isomorphic-fetch",
-                commonjs2 : "isomorphic-fetch",
-                commonjs  : "isomorphic-fetch",
-                amd       : "isomorphic-fetch"
+            "whatwg-fetch": {
+                root      : "whatwg-fetch",
+                commonjs2 : "whatwg-fetch",
+                commonjs  : "whatwg-fetch",
+                amd       : "whatwg-fetch"
             }
         }
     ],

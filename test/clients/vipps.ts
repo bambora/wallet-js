@@ -8,7 +8,7 @@ const expect = chai.expect;
 chai.use(chaiAsPromised);
 
 // Implementation depencies and mocks
-import "isomorphic-fetch";
+import "whatwg-fetch";
 import * as fetchMock   from "fetch-mock";
 import { EventEmitter } from "eventemitter3";
 import { VippsRequest } from "../../src/clients/vipps";
