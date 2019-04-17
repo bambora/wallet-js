@@ -139,7 +139,7 @@ Alternate link: https://static.bambora.com/wallet/${gitTag}/wallet.min.js""")
         credentialsId: "public-npm-repository",
         variable: "NPM_AUTH_TOKEN"
       ]]) {
-        docker.image("node:7.0").inside("-u 0:0") {
+        docker.image("node:10.0").inside("-u 0:0") {
           sh "echo '//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN' > .npmrc"
           sh "npm publish --access public"
         }
