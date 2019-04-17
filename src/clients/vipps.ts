@@ -50,7 +50,7 @@ export class VippsRequest implements IWalletRequest {
         var events            = this._events;
         var fetch             = this._fetch;
 
-        if (method === "Redirect") location.href = url;
+        if (method === "Redirect") window.top.location.href = url;
 
         function poll(retries = 0): Promise<IWalletResult> {
             const maximumRetries = 15;

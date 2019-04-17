@@ -56,7 +56,7 @@ node("docker-concurrent") {
     notify_start("Building of ${gitTag} has started...")
 
     try {
-      docker.image("node:7.0").inside("-u 0:0") {
+      docker.image("node:10.0").inside("-u 0:0") {
         sh "npm install"
         env.NODE_ENV = "production"
         sh "npm run build"
