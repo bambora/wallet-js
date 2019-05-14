@@ -34,15 +34,8 @@ export class MobilePayRequest implements IWalletRequest {
     }
 
     public initiate(): Promise<IWalletResult> {
-        const isCheckout = !!(this.data as IMobilePayCheckoutRequestData).CheckoutToken;
         const form = document.createElement("form");
-
-        form.action = this._walletEndpoint ||
-            (isCheckout
-                ? endpoints.mobilePayCheckout.productionClient
-                : endpoints.mobilePay.productionClient
-            );
-
+        form.action = this._walletEndpoint || endpoints.mobilePay.productionClient;
         form.method = "POST";
         form.target = this._target;
 
