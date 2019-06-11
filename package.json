@@ -1,6 +1,6 @@
 {
   "name": "@bambora/wallet",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "description": "Bambora Online JavaScript API for Wallet transactions",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/bambora/wallet.git"
   },
-  "author": "Jesper Dalgas Zachariassen <jesper.zachariassen@bambora.com> (http://bambora.com)",
+  "author": "Bambora Online A/S <integrationonline@bambora.com> (https://bambora.com)",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/bambora/wallet/issues"
@@ -24,7 +24,7 @@
   "dependencies": {
     "es6-promise": "4.0.5",
     "eventemitter3": "2.0.2",
-    "querystringify": "1.0.0",
+    "querystringify": "2.1.1",
     "whatwg-fetch": "2.0.3"
   },
   "devDependencies": {
