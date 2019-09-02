@@ -1,11 +1,11 @@
 {
   "name": "@bambora/wallet",
-  "version": "1.2.5",
+  "version": "1.2.6",
   "description": "Bambora Online JavaScript API for Wallet transactions",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
   "scripts": {
-    "test": "mocha --compilers ts:ts-node/register ./test/**/*.ts",
+    "test": "mocha --require ts-node/register ./test/**/*.ts",
     "clean": "rimraf ./dist",
     "start": "npm run clean && webpack-dev-server --hot",
     "dev-build": "npm run clean && webpack -d",
@@ -40,7 +40,7 @@
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
     "fetch-mock": "5.9.4",
-    "mocha": "3.2.0",
+    "mocha": "6.2.0",
     "rimraf": "2.5.4",
     "sinon": "2.0.0",
     "ts-loader": "2.3.7",
