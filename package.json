@@ -1,6 +1,6 @@
 {
   "name": "@bambora/wallet",
-  "version": "1.2.6",
+  "version": "1.2.7",
   "description": "Bambora Online JavaScript API for Wallet transactions",
   "main": "dist/index.js",
   "types": "dist/src/index.d.ts",
