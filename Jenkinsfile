@@ -40,7 +40,7 @@ def notify_failure(message) {
   slack("*${SERVICE} (${env.BRANCH_NAME}):* ${message}", SLACK_CHANNEL, "danger")
 }
 
-node("docker-concurrent") {
+agent("docker-concurrent") {
   checkout scm
   sh "git fetch --tags"
 
