@@ -2,11 +2,13 @@ import * as endpoints                                        from "./endpoints";
 import getWalletResponseTransformer                          from "./response-transformers";
 import { IGenericWalletOptions, IWalletName, IKeyValueType } from  "./wallet";
 
+
 export default class WalletService implements IWalletService {
     private _endpoint = endpoints.epayZero.walletApi;
 
     private _defaultHeaders = {
         Accept: "application/json, text/plain, */*",
+        "X-EPay-System" : this.xEpaySystemHeader()
     };
 
     private _fetch                        : typeof fetch = null;
@@ -45,6 +47,11 @@ export default class WalletService implements IWalletService {
         });
 
         return promise;
+    }
+
+    private xEpaySystemHeader() {
+        const packageJson = require("../package.json");
+        return "WalletSDK/" + packageJson.version; 
     }
 }
 
