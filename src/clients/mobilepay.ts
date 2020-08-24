@@ -34,27 +34,30 @@ export class MobilePayRequest implements IWalletRequest {
     }
 
     public initiate(): Promise<IWalletResult> {
-        const form = document.createElement("form");
-        form.action = this._walletEndpoint || endpoints.mobilePay.productionClient;
-        form.method = "POST";
-        form.target = this._target;
+        //MobilePay V2
+        if(this.data.Url) {
+            window.location.href = this.data.Url;
+        } else {
+            //MobilePay V1
+            if (!this.data.Version) this.data.Version = "1";
+            const form = document.createElement("form");
+            form.action = this._walletEndpoint || endpoints.mobilePay.productionClient;
+            form.method = "POST";
+            form.target = this._target;
+            for (let key in this.data) {
+                if (this.data.hasOwnProperty(key)) {
+                    let input = document.createElement("input");
 
-        if (!this.data.Version) this.data.Version = "1";
+                    input.type  = "hidden";
+                    input.name  = key;
+                    input.value = this.data[key];
 
-        for (let key in this.data) {
-            if (this.data.hasOwnProperty(key)) {
-                let input = document.createElement("input");
-
-                input.type  = "hidden";
-                input.name  = key;
-                input.value = this.data[key];
-
-                form.appendChild(input);
+                    form.appendChild(input);
+                }
             }
+            document.body.appendChild(form);
+            form.submit();
         }
-
-        document.body.appendChild(form);
-        form.submit();
 
         return new Promise<IWalletResult>((resolve, reject) => {
             // Implement mobile pay in overlay
@@ -66,12 +69,14 @@ export interface IMobilePayClassicRequestData extends IWalletRequestData {
     SessionToken : string;
     PhoneNumber? : string;
     Version?     : string;
+    Url?         : string;
 }
 
 export interface IMobilePayCheckoutRequestData extends IWalletRequestData {
     CheckoutToken : string;
     PhoneNumber?  : string;
     Version?      : string;
+    Url?          : string;
 }
 
 export type IMobilePayRequestData = IMobilePayClassicRequestData | IMobilePayCheckoutRequestData;

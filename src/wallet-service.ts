@@ -38,10 +38,9 @@ export default class WalletService implements IWalletService {
 
         .then<IValidWalletSessionResponse>(jsonResponse => {
             const transformer = this._getWalletResponseTransformer(jsonResponse.session.walletname);
-
-            if (transformer)
+            if (transformer) {
                 return transformer.transform(jsonResponse);
-
+            }
             return jsonResponse;
         });
 
