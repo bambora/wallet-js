@@ -40,7 +40,7 @@
     "chai": "3.5.0",
     "chai-as-promised": "6.0.0",
     "fetch-mock": "5.9.4",
-    "mocha": "6.2.0",
+    "mocha": "10.2.0",
     "rimraf": "2.5.4",
     "sinon": "2.0.0",
     "ts-loader": "2.3.7",
