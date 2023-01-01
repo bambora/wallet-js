@@ -43,11 +43,11 @@
     "mocha": "6.2.0",
     "rimraf": "2.5.4",
     "sinon": "2.0.0",
-    "ts-loader": "2.3.7",
+    "ts-loader": "9.4.2",
     "ts-node": "3.3.0",
     "tslint": "4.5.1",
     "typescript": "2.5.3",
-    "webpack": "2.2.1",
+    "webpack": "5.75.0",
     "webpack-dev-server": "2.2.1"
   }
 }
