@@ -1,36 +1,29 @@
-import { IWalletSessionResponse, IValidWalletSessionResponse } from "./wallet-service";
+import { IWalletName } from './wallet'
+import { IValidWalletSessionResponse, IWalletSessionResponse } from './wallet-service'
 
 export interface IWalletResponseTransformerConstructable {
-    new(): IWalletResponseTransformer;
+  new (): IWalletResponseTransformer
 }
 
 export interface IWalletResponseTransformer {
-    transform(response: IWalletSessionResponse): IValidWalletSessionResponse;
+  transform(response: IWalletSessionResponse): IValidWalletSessionResponse
 }
 
-export const walletResponseTransformers = {};
+export const walletResponseTransformers = {}
 
-export default function getWalletResponseTransformer(walletName: string): IWalletResponseTransformer {
-    if (typeof walletName !== "string" || !walletName.length)
-        throw new TypeError("A wallet name must be supplied!");
+export default function getWalletResponseTransformer(walletName: IWalletName): IWalletResponseTransformer | null {
+  if (!walletName?.length) throw new TypeError('A wallet name must be supplied!')
 
-    walletName = walletName.toLowerCase();
+  if (walletResponseTransformers[walletName]) return new walletResponseTransformers[walletName]()
 
-    if (walletResponseTransformers[walletName])
-        return new walletResponseTransformers[walletName]();
-
-    // Otherwise just do nothing
-    return null;
+  return null
 }
 
 // Decorator
-export function WalletResponseTransformer(walletName: string) {
-    if (typeof walletName !== "string" || !walletName.length)
-        throw new TypeError("A wallet name must be supplied!");
+export function WalletResponseTransformer(walletName: IWalletName) {
+  if (!walletName?.length) throw new TypeError('A wallet name must be supplied!')
 
-    walletName = walletName.toLowerCase();
-
-    return (walletTransformerConstructable: IWalletResponseTransformerConstructable) => {
-        walletResponseTransformers[walletName] = walletTransformerConstructable;
-    };
-};
+  return (walletTransformerConstructable: IWalletResponseTransformerConstructable) => {
+    walletResponseTransformers[walletName] = walletTransformerConstructable
+  }
+}

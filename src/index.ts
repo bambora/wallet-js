@@ -1,28 +1,26 @@
-import * as promise from "es6-promise";
-promise.polyfill();
-import "whatwg-fetch";
+import * as promise from 'es6-promise'
 
-import Wallet from "./wallet";
-import * as errors from "./errors";
+promise.polyfill()
+import 'whatwg-fetch'
+import * as errors from './errors'
+import Wallet from './wallet'
 
 if (window) {
-    window.Bambora              = window.Bambora        || {};
-    window.Bambora.Wallet       = window.Bambora.Wallet || Wallet;
-    window.Bambora.WalletErrors = window.Bambora.WalletErrors || errors;
+  window.Bambora = window.Bambora || {}
+  window.Bambora.Wallet = window.Bambora.Wallet || Wallet
+  window.Bambora.WalletErrors = window.Bambora.WalletErrors || errors
 }
 
-// tslint:disable
 declare global {
-    interface Bambora {
-        Wallet?: typeof Wallet;
-        WalletErrors?: typeof errors;
-    }
+  interface Bambora {
+    Wallet?: typeof Wallet
+    WalletErrors?: typeof errors
+  }
 
-    interface Window {
-        Bambora: Bambora;
-    }
+  interface Window {
+    Bambora: Bambora
+  }
 }
-// tslint:enable
 
-export default Wallet;
-export { errors };
+export default Wallet
+export { errors }

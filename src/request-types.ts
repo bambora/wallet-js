@@ -1,35 +1,31 @@
-import { IWalletRequestData, IGenericWalletOptions, IWalletRequest } from "./wallet";
+/* eslint-disable import/order */
+import { IGenericWalletOptions, IWalletName, IWalletRequest, IWalletRequestData } from './wallet'
 
 export interface IWalletRequestConstructable {
-    new(data: IWalletRequestData, options?: IGenericWalletOptions): IWalletRequest;
+  new (data: IWalletRequestData, options?: IGenericWalletOptions): IWalletRequest
 }
 
-export const walletRequestTypes = {};
+export const walletRequestTypes = {}
 
-export default function getWalletRequestType(walletName: string): IWalletRequestConstructable {
-    if (typeof walletName !== "string" || !walletName.length)
-        throw new TypeError("A wallet name must be supplied!");
+export default function getWalletRequestTypeFn(walletName: IWalletName): IWalletRequestConstructable {
+  if (typeof walletName !== 'string' || !walletName.length) throw new TypeError('A wallet name must be supplied!')
 
-    walletName = walletName.toLowerCase();
+  if (walletRequestTypes[walletName]) return walletRequestTypes[walletName]
 
-    if (walletRequestTypes[walletName])
-        return walletRequestTypes[walletName];
-
-    throw new ReferenceError(`The wallet type "${walletName}" could not be found.`);
+  throw new ReferenceError(`The wallet type "${walletName}" could not be found.`)
 }
 
 // Decorator
-export function WalletRequestType(walletName: string) {
-    if (typeof walletName !== "string" || !walletName.length)
-        throw new TypeError("A wallet name must be supplied!");
+export function WalletRequestType(
+  walletName: IWalletName,
+): (walletRequestConstructable: IWalletRequestConstructable) => void {
+  if (typeof walletName !== 'string' || !walletName.length) throw new TypeError('A wallet name must be supplied!')
 
-    walletName = walletName.toLowerCase();
-
-    return (walletRequestConstructable: IWalletRequestConstructable) => {
-        walletRequestTypes[walletName] = walletRequestConstructable;
-    };
+  return (walletRequestConstructable: IWalletRequestConstructable) => {
+    walletRequestTypes[walletName] = walletRequestConstructable
+  }
 }
 
-// Get the clients
-import * as clients from "./clients";
-clients; // tslint:disable-line
+import * as clients from './clients'
+
+clients

@@ -5,7 +5,7 @@ Implements an abstraction layer over the various wallet integrations offered by 
 Strongly typed. Promise-based.
 
 Currently, the following wallet solutions are supported:
-- MasterPass
+
 - MobilePay
 - Vipps
 - Bambora Online test wallet
@@ -28,7 +28,9 @@ For Internet Explorer, only version 11 is supported.
 Pull requests for bugs related to older versions or uncommon browsers are welcome, but not supported by Bambora.
 
 ## Quick start
+
 ### Global approach
+
 Include the following snippet on your page just before the `</body>` tag:
 
 ```javascript
@@ -46,11 +48,13 @@ document.addEventListener("DOMContentLoaded", function() {
 ```
 
 ### Modular approach
+
 **ES5:** `var Wallet = require("@bambora/wallet");`
 
 **TS/ES6:** `import Wallet from "@bambora/wallet";`
 
 ### Integration
+
 Wallets are initiated as follows:
 
 ```javascript
@@ -69,6 +73,7 @@ wallet.open("input session token here").then(
 ```
 
 Or a one-liner:
+
 ```javascript
 new Bambora.Wallet().open("input session token here").then(successHandler, errorHandler);
 ```
@@ -76,47 +81,32 @@ new Bambora.Wallet().open("input session token here").then(successHandler, error
 The `open` method is a function that returns a `promise`.
 It resolves when a payment was successfully authorized, and rejects when an exception occurs or the payment was rejected.
 
-### Options Object
-**_Info coming soon._**
-
-### Exceptions
-**_Info coming soon._**
-
-### Event Emitter
-An event emitter is exposed on all Vipps Wallet instances. Subscribe to the event emitter to get updates from each polling request.
-
-```javascript
-new Bambora.Wallet().events.on("event type", event => { /* handle event */ })
-```
-
-Event types are:
-- `pollRequestInitiated`
-- `pollRequestFulfilled`
-
-**_Event data info coming soon._**
-
 ## Build
+
 Requirements are _Node_ and _NPM_.
 
 Clone the project, navigate to the project root, and run `npm run build` in your terminal.
 This will install all dependencies and output all assets to the `dist`-folder.
 
 ### Main developer dependencies
+
 - Webpack
 - TypeScript
 - Mocha
 - Chai
-- Sinon
 
 ### Test
+
 Run `npm test` in your terminal in the project root.
 
 ## Contributing
+
 Create a pull request or an issue. Thanks.
 
 **_More info coming soon._**
 
 ## CI/CD
+
 CI/CD is done by Jenkins by reading the Jenkinsfile. The CI/CD pipeline goes through 4 steps:
 
 1. Build.
@@ -127,8 +117,3 @@ CI/CD is done by Jenkins by reading the Jenkinsfile. The CI/CD pipeline goes thr
 This will be run on the master branch and with tagged commits only.
 
 Use `npm version` to bump the version and create a tagged commit as it ensures consistency.
-
-## Maintainers
-Currently maintained by Jesper Dalgas Zachariassen.
-
-Contact via `jesper.zachariassen@bambora.com` or `@jesperzach` on the Bambora Slack.

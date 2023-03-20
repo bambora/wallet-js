@@ -1,26 +1,38 @@
 {
   "compilerOptions": {
-    "target"                         : "es5",
-    "module"                         : "commonjs",
-    "moduleResolution"               : "node",
-    "sourceMap"                      : true,
-    "emitDecoratorMetadata"          : true,
-    "experimentalDecorators"         : true,
-    "removeComments"                 : true,
-    "noImplicitAny"                  : false,
-    "suppressImplicitAnyIndexErrors" : true,
-    "isolatedModules"                : false,
-    "baseUrl"                        : ".",
-    "declaration"                    : true,
+    "target": "es5",
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true,
+    "allowSyntheticDefaultImports": true,
+    "removeComments": true,
+    "noImplicitAny": false,
+    "isolatedModules": true,
+    "noImplicitReturns": true,
+    "declaration": true,
+    "strictNullChecks": true,
+    "declarationDir": "./dist/types",
+    "resolveJsonModule": true,
+    "inlineSourceMap": true,
+    "types": [
+      "node"
+    ],
     "lib": [
       "dom",
       "es5",
       "es6",
       "scripthost"
-    ]
+    ],
+    "rootDir": "./src",
+    "outDir": "./dist"
   },
+  "include": [
+    "src/**/*",
+  ],
   "exclude": [
     "node_modules",
-    "bower_components"
+    "dist",
+    "test/**/*.spec.ts"
   ]
 }
