@@ -1,19 +1,14 @@
-import {
-    IWalletSessionResponse,
-    IValidWalletSessionResponse,
-} from "../../src/wallet-service";
-import getWalletResponseTransformer, {
-    IWalletResponseTransformer,
-} from "../../src/response-transformers";
+import getWalletResponseTransformer, { IWalletResponseTransformer } from '../../src/response-transformers'
+import { IValidWalletSessionResponse } from '../../src/wallet-service'
 
 export function mockGetWalletResponseTransformer(
-    validWalletSessionResponse: IValidWalletSessionResponse,
+  validWalletSessionResponse: IValidWalletSessionResponse,
 ): typeof getWalletResponseTransformer {
-    return (walletName: string): IWalletResponseTransformer => {
-        return {
-            transform: (response: IWalletSessionResponse): IValidWalletSessionResponse => {
-                return validWalletSessionResponse;
-            },
-        };
-    };
+  return (): IWalletResponseTransformer => {
+    return {
+      transform: (): IValidWalletSessionResponse => {
+        return validWalletSessionResponse
+      },
+    }
+  }
 }

@@ -56,8 +56,8 @@ agent("docker-concurrent") {
     notify_start("Building of ${gitTag} has started...")
 
     try {
-      docker.image("node:10.0").inside("-u 0:0") {
-        sh "npm install"
+      docker.image("node:16.19.1").inside {
+        sh "npm ci"
         env.NODE_ENV = "production"
         sh "npm run build"
       }
@@ -139,7 +139,7 @@ Alternate link: https://static.bambora.com/wallet/${gitTag}/wallet.min.js""")
         credentialsId: "public-npm-repository",
         variable: "NPM_AUTH_TOKEN"
       ]]) {
-        docker.image("node:10.0").inside("-u 0:0") {
+        docker.image("node:16.19.1").inside {
           sh "echo '//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN' > .npmrc"
           sh "npm publish --access public"
         }

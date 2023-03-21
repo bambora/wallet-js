@@ -1,13 +1,9 @@
-import {
-    IWalletService,
-    IWalletServiceConstructable,
-    IValidWalletSessionResponse,
-}                  from "../../src/wallet-service";
+import { IValidWalletSessionResponse } from '../../src/wallet-service'
 
-export function mockWalletService(response: IValidWalletSessionResponse): any {
-    return class Mock {
-        public getSession(sessionId: string): Promise<IValidWalletSessionResponse> {
-            return Promise.resolve(response);
-        }
-    };
+export function mockWalletService(response: IValidWalletSessionResponse) {
+  return class Mock {
+    public getSession(): Promise<IValidWalletSessionResponse> {
+      return Promise.resolve(response)
+    }
+  }
 }

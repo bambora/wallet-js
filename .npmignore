@@ -1,8 +1,2 @@
-node_modules/
-index.html
-triangles.jpg
-.vscode/
-src/
-test/
-webpack.config.js
-tsconfig.json
+*
+!dist/**/*

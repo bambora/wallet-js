@@ -1,160 +1,151 @@
-import * as qs               from "querystringify";
-import * as endpoints        from "../endpoints";
-import { WalletRequestType } from "../request-types";
+import * as endpoints from '../endpoints'
+import { WalletRequestType } from '../request-types'
 import {
-    IWalletRequestData,
-    IWalletRequest,
-    IPreferredWindowState,
-    IGenericWalletOptions,
-    IWalletResult,
-}                            from "../wallet";
+  IGenericWalletOptions,
+  IPreferredWindowState,
+  IWalletRequest,
+  IWalletRequestData,
+  IWalletResult,
+} from '../wallet'
 
-@WalletRequestType("Test")
+@WalletRequestType('Test')
 export class TestRequest implements IWalletRequest {
-    private _preferredWindowState : IPreferredWindowState;
-    private _walletEndpoint       : string;
-    private _backdrop             : HTMLDivElement;
+  private _preferredWindowState: IPreferredWindowState
+  private _walletEndpoint: string
+  private _backdrop: HTMLDivElement
 
-    constructor(
-        private data: ITestRequestData,
-        options?: IGenericWalletOptions,
-    ) {
-        if (options) {
-            if (options.preferredWindowState) {
-                this._preferredWindowState = options.preferredWindowState;
+  constructor(private data: ITestRequestData, options?: IGenericWalletOptions) {
+    if (options) {
+      if (options.preferredWindowState) {
+        this._preferredWindowState = options.preferredWindowState
+      }
+
+      if (options.walletEndpoint) {
+        this._walletEndpoint = options.walletEndpoint
+      }
+    }
+  }
+
+  public initiate(): Promise<IWalletResult> {
+    if (this._preferredWindowState === 'overlay') {
+      const iframe = document.createElement('iframe')
+      const url = `${this._walletEndpoint || endpoints.epayZero.testClient}/?${new URLSearchParams({
+        returnUrl: this.data.returnUrl,
+      }).toString()}`
+
+      iframe.setAttribute('src', url)
+
+      iframe.style.width = '100%'
+      iframe.style.height = '100%'
+      iframe.style.border = '0 none'
+      iframe.style.bottom = '0'
+      iframe.style.top = '0'
+      iframe.style.left = '0'
+      iframe.style.right = '0'
+      iframe.style.position = 'fixed'
+      iframe.style.zIndex = '10000'
+
+      document.body.appendChild(iframe)
+
+      this.showBackdrop()
+
+      return new Promise<IWalletResult>((resolve, reject) => {
+        window.addEventListener('message', onMessageReceived)
+
+        function onMessageReceived(event) {
+          // TODO: put URL into endpoints & set via option
+          if (event.origin !== 'https://wallet-v1.api-epay.eu') return
+
+          const result: IWalletResult = {
+            data: event.data,
+            walletName: 'Test',
+          }
+
+          if (result.data && event.data.status) {
+            switch (event.data.status) {
+              case 'success': {
+                resolve(result)
+                break
+              }
+              case 'cancel': {
+                reject(result)
+                break
+              }
+              default:
+              case 'error': {
+                reject(result)
+                break
+              }
             }
+          }
 
-            if (options.walletEndpoint) {
-                this._walletEndpoint = options.walletEndpoint;
-            }
+          window.removeEventListener('message', onMessageReceived)
         }
+      })
     }
 
-    public initiate(): Promise<IWalletResult> {
-        if (this._preferredWindowState === "overlay")  {
-            const iframe = document.createElement("iframe");
-            const url    = `${this._walletEndpoint || endpoints.epayZero.testClient}/?${qs.stringify(this.data)}`;
+    const form = document.createElement('form')
 
-            iframe.setAttribute("src", url);
+    form.action = this._walletEndpoint || endpoints.epayZero.testClient
+    form.method = 'GET'
+    form.target = '_self'
 
-            iframe.style.width    = "100%";
-            iframe.style.height   = "100%";
-            iframe.style.border   = "0 none";
-            iframe.style.bottom   = "0";
-            iframe.style.top      = "0";
-            iframe.style.left     = "0";
-            iframe.style.right    = "0";
-            iframe.style.position = "fixed";
-            iframe.style.zIndex   = "10000";
+    for (const key in this.data) {
+      // eslint-disable-next-line no-prototype-builtins
+      if (this.data.hasOwnProperty(key)) {
+        const input = document.createElement('input')
 
-            document.body.appendChild(iframe);
+        input.type = 'hidden'
+        input.name = key
+        input.value = this.data[key]
 
-            this.showBackdrop();
-
-            return new Promise<IWalletResult>((resolve, reject) => {
-                window.addEventListener("message", onMessageReceived);
-
-                function onMessageReceived(event) {
-                    // TODO: put URL into endpoints & set via option
-                    if (event.origin !== "https://wallet-v1.api-epay.eu") return;
-
-                    const message = event.data;
-
-                    const result: IWalletResult = {
-                        data: event.data,
-                        walletName: "Test",
-                    };
-
-                    if (result.data && result.data.status) {
-                        switch (result.data.status) {
-                            case "success": {
-                                resolve(result);
-                                break;
-                            }
-                            case "cancel": {
-                                reject(result);
-                                break;
-                            }
-                            default:
-                            case "error": {
-                                reject(result);
-                                break;
-                            }
-                        }
-                    }
-
-                    window.removeEventListener("message", onMessageReceived);
-                }
-            });
-        }
-
-        const form = document.createElement("form");
-
-        form.action = this._walletEndpoint || endpoints.epayZero.testClient;
-        form.method = "GET";
-        form.target = "_self";
-
-        for (let key in this.data) {
-            if (this.data.hasOwnProperty(key)) {
-                let input = document.createElement("input");
-
-                input.type  = "hidden";
-                input.name  = key;
-                input.value = this.data[key];
-
-                form.appendChild(input);
-            }
-        }
-
-        document.body.appendChild(form);
-        form.submit();
-
-        // The returned object does not matter for fullscreen context,
-        // as the user is redirected before we get to this point.
-        // We can simply return an empty promise to meet the interface.
-        return new Promise((resolve, reject) => null);
+        form.appendChild(input)
+      }
     }
 
-    private showBackdrop() {
-        if (!this._backdrop) {
-            this._backdrop = document.createElement("div");
+    document.body.appendChild(form)
+    form.submit()
 
-            this._backdrop.style.position   = "fixed";
-            this._backdrop.style.zIndex     = "9999";
-            this._backdrop.style.background = "rgba(0, 0, 0, 0.48)";
-            this._backdrop.style.width      = "100%";
-            this._backdrop.style.height     = "100%";
-            this._backdrop.style.top        = "0";
-            this._backdrop.style.left       = "0";
-            this._backdrop.style.right      = "0";
-            this._backdrop.style.bottom     = "0";
-            this._backdrop.style.display    = "none";
-            this._backdrop.style.opacity    = "0";
-            this._backdrop.style.transition = "all 500ms ease-in-out";
+    // The returned object does not matter for fullscreen context,
+    // as the user is redirected before we get to this point.
+    // We can simply return an empty promise to meet the interface.
+    return new Promise(() => null)
+  }
 
-            document.body.appendChild(this._backdrop);
-        }
+  private showBackdrop() {
+    if (!this._backdrop) {
+      this._backdrop = document.createElement('div')
 
-        this._backdrop.style.display = "block";
+      this._backdrop.style.position = 'fixed'
+      this._backdrop.style.zIndex = '9999'
+      this._backdrop.style.background = 'rgba(0, 0, 0, 0.48)'
+      this._backdrop.style.width = '100%'
+      this._backdrop.style.height = '100%'
+      this._backdrop.style.top = '0'
+      this._backdrop.style.left = '0'
+      this._backdrop.style.right = '0'
+      this._backdrop.style.bottom = '0'
+      this._backdrop.style.display = 'none'
+      this._backdrop.style.opacity = '0'
+      this._backdrop.style.transition = 'all 500ms ease-in-out'
 
-        setTimeout(
-            () => this._backdrop.style.opacity = "1",
-            1,
-        );
+      document.body.appendChild(this._backdrop)
     }
 
-    private hideBackdrop() {
-        if (!this._backdrop) return;
+    this._backdrop.style.display = 'block'
 
-        this._backdrop.style.opacity = "0";
+    setTimeout(() => (this._backdrop.style.opacity = '1'), 1)
+  }
 
-        setTimeout(
-            () => this._backdrop.style.display = "none",
-            500,
-        );
-    }
+  private hideBackdrop() {
+    if (!this._backdrop) return
+
+    this._backdrop.style.opacity = '0'
+
+    setTimeout(() => (this._backdrop.style.display = 'none'), 500)
+  }
 }
 
 export interface ITestRequestData extends IWalletRequestData {
-    returnUrl: string;
+  returnUrl: string
 }
