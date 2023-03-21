@@ -81,13 +81,13 @@ agent("docker-concurrent") {
       s3Upload(
         file: "dist/index.js",
         bucket: "bambora-static-prod-eu-west-1",
-        path: "wallet/latest/wallet.min.js"
+        path: "wallet/v2/latest/wallet.min.js"
       )
 
       s3Upload(
         file: "dist/index.js",
         bucket: "bambora-static-prod-eu-west-1",
-        path: "wallet/${gitTag}/wallet.min.js"
+        path: "wallet/v2/${gitTag}/wallet.min.js"
       )
     } catch (error) {
       notify_failure("Publishing of ${gitTag} to the Bambora CDN failed!")
@@ -95,8 +95,8 @@ agent("docker-concurrent") {
     }
     
     notify_success("""Publishing of ${gitTag} to the Bambora CDN was successful.\n
-Direct link: https://static.bambora.com/wallet/latest/wallet.min.js
-Alternate link: https://static.bambora.com/wallet/${gitTag}/wallet.min.js""")
+Direct link: https://static.bambora.com/wallet/v2/latest/wallet.min.js
+Alternate link: https://static.bambora.com/wallet/v2/${gitTag}/wallet.min.js""")
   }
 
   stage("Invalidate Bambora CDN Cache") {
@@ -113,8 +113,8 @@ Alternate link: https://static.bambora.com/wallet/${gitTag}/wallet.min.js""")
       cfInvalidate(
         distribution: outputs.get("Distribution"),
         paths: [
-          "/wallet/latest/*",
-          "/wallet/${gitTag}/*"
+          "/wallet/v2/latest/*",
+          "/wallet/v2/${gitTag}/*"
         ]
       )
     } catch (error) {
