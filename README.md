@@ -18,7 +18,7 @@ If you're looking for documentation for the wallet API it can be found [here](ht
 
 **NPM:** `npm install @bambora/wallet`
 
-**CDN:** <https://static.bambora.com/wallet/latest/wallet.min.js>
+**CDN:** <https://static.bambora.com/wallet/v2/latest/wallet.min.js>
 
 Minified and gzipped size is ~9 KB.
 
