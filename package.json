@@ -3,7 +3,7 @@
   "version": "2.0.0",
   "description": "Bambora Online JavaScript API for Wallet transactions",
   "main": "dist/index.js",
-  "types": "dist/src/index.d.ts",
+  "types": "dist/types/index.d.ts",
   "engines": {
     "node": "16.x.x"
   },
