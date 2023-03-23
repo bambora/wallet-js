@@ -21,14 +21,13 @@
     "lib": [
       "dom",
       "es5",
-      "es6",
-      "scripthost"
+      "es6"
     ],
     "rootDir": "./src",
     "outDir": "./dist"
   },
   "include": [
-    "src/**/*",
+    "src/**/*"
   ],
   "exclude": [
     "node_modules",

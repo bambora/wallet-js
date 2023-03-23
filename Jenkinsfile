@@ -79,13 +79,13 @@ agent("docker-concurrent") {
 
     try {
       s3Upload(
-        file: "dist/index.js",
+        file: "dist/wallet.min.js",
         bucket: "bambora-static-prod-eu-west-1",
         path: "wallet/v2/latest/wallet.min.js"
       )
 
       s3Upload(
-        file: "dist/index.js",
+        file: "dist/wallet.min.js",
         bucket: "bambora-static-prod-eu-west-1",
         path: "wallet/v2/${gitTag}/wallet.min.js"
       )

@@ -1,6 +1,6 @@
 {
   "name": "@bambora/wallet",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Bambora Online JavaScript API for Wallet transactions",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -25,10 +25,6 @@
     "url": "https://github.com/bambora/wallet/issues"
   },
   "homepage": "https://github.com/bambora/wallet#readme",
-  "dependencies": {
-    "es6-promise": "4.2.8",
-    "whatwg-fetch": "^3.6.2"
-  },
   "devDependencies": {
     "@types/chai": "4.3.4",
     "@types/chai-as-promised": "7.1.5",
@@ -48,6 +44,7 @@
     "mocha": "10.2.0",
     "node-fetch": "2.6.9",
     "rimraf": "4.4.0",
+    "terser-webpack-plugin": "5.3.7",
     "ts-loader": "9.4.2",
     "ts-mocha": "10.0.0",
     "ts-node": "10.9.1",
@@ -55,6 +52,6 @@
     "webpack": "5.76.2",
     "webpack-cli": "5.0.1",
     "webpack-dev-server": "4.13.1",
-    "webpack-merge": "^5.8.0"
+    "webpack-merge": "5.8.0"
   }
 }
