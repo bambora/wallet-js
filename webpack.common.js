@@ -1,10 +1,10 @@
 const path = require('path')
-const webpack = require('webpack');
+const webpack = require('webpack')
+const { merge } = require('webpack-merge')
 
-module.exports = {
-  entry: {
-    index: './src/index.ts',
-  },
+const TerserPlugin = require('terser-webpack-plugin');
+
+const config = {
   module: {
     rules: [
       {
@@ -17,27 +17,62 @@ module.exports = {
   resolve: {
     extensions: ['.ts', '.js'],
   },
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js',
-    library: 'wallet',
-    libraryTarget: 'umd',
-    umdNamedDefine: true,
-    clean: true,
-  },
-  externals: [
-    {
-      'whatwg-fetch': {
-        root: 'whatwg-fetch',
-        commonjs2: 'whatwg-fetch',
-        commonjs: 'whatwg-fetch',
-        amd: 'whatwg-fetch',
-      },
-    },
-  ],
   plugins: [
     new webpack.DefinePlugin({
       VERSION: JSON.stringify(require('./package.json').version),
     }),
   ],
 }
+
+const webConfig = merge(
+  config,
+  {
+    entry: {
+      web: {
+        import: './src/web.ts',
+        library: {
+          name: 'web',
+          type: 'commonjs'
+        }
+      }
+    },
+    target: ['web', 'es5'],
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'wallet.min.js',
+      iife: true,
+    },
+    optimization: {
+      minimizer: [new TerserPlugin({
+        extractComments: false,
+      })],
+    },
+  }
+);
+
+const nodeConfig = merge(
+  config,
+  {
+    entry: {
+      index: {
+        import: './src/index.ts',
+        library: {
+          name: 'BamboraWalletSDK',
+          umdNamedDefine: true,
+          type: 'umd',
+        }
+      }
+    },
+    target: ['node', 'es5'],
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'index.js',
+      libraryTarget: 'umd',
+    },
+    optimization: {
+      minimize: false,
+    }
+  }
+);
+
+module.exports = [webConfig, nodeConfig]

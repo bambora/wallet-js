@@ -1,2 +1,4 @@
 *
 !dist/**/*
+dist/types/web.d.ts
+dist/wallet.min.js
