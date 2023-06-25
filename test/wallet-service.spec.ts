@@ -2,7 +2,6 @@
 import 'mocha'
 import * as chai from 'chai'
 import * as chaiAsPromised from 'chai-as-promised'
-import 'whatwg-fetch'
 import * as fetchMock from 'fetch-mock'
 import { FetchError } from 'node-fetch'
 

@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "engines": {
-    "node": "16.x.x"
+    "node": ">=16.x.x <= 18.x.x"
   },
   "scripts": {
     "test": "ts-mocha -p tsconfig.json test/**/*.spec.ts",
