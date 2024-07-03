@@ -1,11 +1,11 @@
 {
   "name": "@bambora/wallet",
-  "version": "2.0.2",
-  "description": "Bambora Online JavaScript API for Wallet transactions",
+  "version": "3.0.0",
+  "description": "Worldline Online Checkout JavaScript API for Wallet transactions",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
   "engines": {
-    "node": "16.x.x"
+    "node": ">=18.0.0"
   },
   "scripts": {
     "test": "ts-mocha -p tsconfig.json test/**/*.spec.ts",
@@ -17,23 +17,27 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bambora/wallet.git"
+    "url": "git+https://github.com/bambora/wallet-js.git"
   },
-  "author": "Bambora Online A/S <integrationonline@bambora.com> (https://bambora.com)",
+  "author": "Worldline S.A. <support.nordics@worldline.com> (https://worldline.com)",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bambora/wallet/issues"
+    "url": "https://github.com/bambora/wallet-js/issues"
   },
-  "homepage": "https://github.com/bambora/wallet#readme",
+  "homepage": "https://github.com/bambora/wallet-js#readme",
   "devDependencies": {
     "@types/chai": "4.3.4",
     "@types/chai-as-promised": "7.1.5",
+    "@types/chai-spies": "^1.0.6",
+    "@types/googlepay": "^0.7.5",
+    "@types/jsdom": "^21.1.6",
     "@types/mocha": "10.0.1",
     "@types/webpack": "5.28.0",
     "@typescript-eslint/eslint-plugin": "5.55.0",
     "@typescript-eslint/parser": "5.55.0",
     "chai": "4.3.7",
     "chai-as-promised": "7.1.1",
+    "chai-spies": "^1.1.0",
     "eslint": "8.36.0",
     "eslint-config-prettier": "8.7.0",
     "eslint-plugin-import": "2.27.5",
@@ -41,6 +45,7 @@
     "eslint-plugin-prefer-arrow": "1.2.3",
     "eslint-plugin-prettier": "4.2.1",
     "fetch-mock": "^9.11.0",
+    "jsdom": "^24.0.0",
     "mocha": "10.2.0",
     "node-fetch": "2.6.9",
     "rimraf": "4.4.0",

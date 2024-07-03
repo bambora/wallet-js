@@ -1,5 +1,7 @@
-import * as errors from './errors'
-import Wallet from './wallet'
+import GooglePay from './clients/googlepay'
+import MobilePay from './clients/mobilepay'
+import Vipps from './clients/vipps'
 
-export default Wallet
-export { errors }
+export { GooglePay, MobilePay, Vipps }
+export * from './clients/index'
+export * from './wallet'

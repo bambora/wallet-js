@@ -1,94 +1,112 @@
-import getWalletRequestType from './request-types'
-import WalletService, { IWalletServiceConstructable } from './wallet-service'
+export interface ISessionProvider<TSessionData extends IWalletSessionData> {
+  fetchSession: () => Promise<Session<TSessionData>>
+}
 
-export default class Wallet {
-  private static getWalletOptions(responseData: Array<IKeyValueType<unknown>>): IWalletRequestData {
-    const walletOptions = responseData.reduce((previous, current) => {
-      previous[current.key] = current.value
-      return previous
-    }, {} as IWalletRequestData)
+export interface IAuthorizeProvider<
+  TSessionData extends IWalletSessionData,
+  TAuthorizeData,
+  TAuthorizeResult extends IAuthorizeResult
+> {
+  authorizePayment: (session: Session<TSessionData>, data: TAuthorizeData) => Promise<TAuthorizeResult>
+}
 
-    return walletOptions
+interface IConfiguration<TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData> {
+  clientConfiguration?: TClientConfiguration
+  sessionProvider: ISessionProvider<TSessionData>
+}
+
+export interface IDirectConfiguration<
+  TClientConfiguration extends IClientConfiguration,
+  TSessionData extends IWalletSessionData,
+  TAuthorizeData,
+  TAuthorizeResult extends IAuthorizeResult,
+  TAuthorizeProvider extends IAuthorizeProvider<TSessionData, TAuthorizeData, TAuthorizeResult>
+>
+  extends IConfiguration<TClientConfiguration, TSessionData> {
+  authorizeProvider?: TAuthorizeProvider
+}
+
+export interface IOffsiteConfiguration<TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData> extends IConfiguration<TClientConfiguration, TSessionData> {
+}
+
+abstract class WalletBase<TData, TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData> implements IWallet {
+  protected data?: TData
+  protected sessionProvider: ISessionProvider<TSessionData>
+
+  constructor(configuration: IConfiguration<TClientConfiguration, TSessionData>, data?: TData) {
+    this.data = data
+
+    if (!configuration) {
+      throw new Error('Configuration must be provided')
+    }
+
+    if (!configuration.sessionProvider) {
+      throw new Error('Configuration sessionProvider must be implemented')
+    }
+
+    this.sessionProvider = configuration.sessionProvider
   }
+}
 
-  private _walletService: IWalletServiceConstructable
-  private _getWalletRequestType: typeof getWalletRequestType
+export abstract class WalletOffsiteBase<TData, TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData>
+  extends WalletBase<TData, TClientConfiguration, TSessionData>
+  implements IWalletOffsite {
+  start: () => Promise<void>
+}
+
+export abstract class WalletDirectBase<
+  TData,
+  TClientConfiguration extends IClientConfiguration,
+  TSessionData extends IWalletSessionData,
+  TAuthorizeData,
+  TAuthorizeResult extends IAuthorizeResult,
+  TAuthorizeProvider extends IAuthorizeProvider<TSessionData, TAuthorizeData, TAuthorizeResult>,
+>
+  extends WalletBase<TData, TClientConfiguration, TSessionData>
+  implements IWalletDirect {
+  protected override data: TData
+  protected authorizeProvider: TAuthorizeProvider
 
   constructor(
-    walletServiceConstructable?: IWalletServiceConstructable,
-    getWalletRequestTypeFn?: typeof getWalletRequestType,
+    configuration: IDirectConfiguration<TClientConfiguration, TSessionData, TAuthorizeData, TAuthorizeResult, TAuthorizeProvider>,
+    data: TData,
+    defaultAuthorizeProvider: TAuthorizeProvider
   ) {
-    this._walletService = walletServiceConstructable || WalletService
-    this._getWalletRequestType = getWalletRequestTypeFn || getWalletRequestType
+    super(configuration, data)
+
+    this.authorizeProvider = configuration.authorizeProvider ?? defaultAuthorizeProvider
   }
 
-  public open(sessionId: string, options: IGenericWalletOptions = {}): Promise<IWalletResult> {
-    options.preferredWindowState = options.preferredWindowState || 'overlay'
-
-    const walletService = new this._walletService(options)
-    const getWalletRequestType = this._getWalletRequestType
-
-    const sessionPromise = walletService.getSession(sessionId).then(function onGetSessionFulfilled(response) {
-      const walletRequestConstructable = getWalletRequestType(response.session.walletname)
-      const walletOptions = Wallet.getWalletOptions(response.session.data)
-      const walletRequest = new walletRequestConstructable(walletOptions, options)
-
-      return walletRequest.initiate()
-    })
-
-    return sessionPromise
-  }
+  abstract start: () => Promise<IAuthorizeResult | void>
 }
 
-// Generic wallet
-export type IWalletName = 'MobilePay' | 'Test' | 'Vipps'
-
-export type IPreferredWindowState = 'fullscreen' | 'overlay'
-
-export interface IGenericWalletOptions {
-  preferredWindowState?: IPreferredWindowState // default : "overlay"
-  endpoint?: string // default : bambora default API endpoint
-  defaultHeaders?: unknown // default : undefined
-  pollTimeout?: number // default : 120 (seconds)
-  walletEndpoint?: string // default : wallet endpoint default
-  target?: '_self' | '_top' // default : "_self"
+export interface IWalletButton<TButtonOptions> {
+  createButton: (container: HTMLElement, options: TButtonOptions) => void
 }
 
-export interface IKeyValueType<T> {
-  key: string
-  value: T
-  type?: 'string' | 'array'
+export interface IWalletData { }
+
+export interface IWalletSessionData { }
+
+export interface IWalletDirect extends IWallet {
+  start: () => Promise<IAuthorizeResult | void>
 }
 
-// Request
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
-export interface IWalletRequestData {}
-
-export interface IWalletRequest {
-  /** Initiates the wallet request */
-  initiate(): Promise<IWalletResult>
+export interface IWalletOffsite extends IWallet {
+  start: () => Promise<void>
 }
 
-export interface IWalletResult {
-  walletName: IWalletName
-  data: unknown
+interface IWallet { }
+
+export interface IAuthorizeResult {
+  authorizeResult?: boolean
+  stepUp: boolean
+  wait: boolean
+  redirectUrl: string
 }
 
-export interface IMetaResponse {
-  meta: {
-    result: boolean
-    message: {
-      enduser: string
-      merchant: string
-    }
-    action: {
-      source: string
-      code: string
-      type: string
-    }
-    paging: {
-      lastevaluatedkey: string
-      itemsreturned: number
-    }
-  }
+export interface IClientConfiguration { }
+
+export type Session<TSessionData> = {
+  data: TSessionData
 }

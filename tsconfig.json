@@ -15,9 +15,6 @@
     "declarationDir": "./dist/types",
     "resolveJsonModule": true,
     "inlineSourceMap": true,
-    "types": [
-      "node"
-    ],
     "lib": [
       "dom",
       "es5",
