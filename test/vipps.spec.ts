@@ -7,6 +7,14 @@ import Vipps, { IVippsSessionData } from '../src/clients/vipps.ts'
 const expect = chai.expect
 chai.use(chaiAsPromised)
 
+declare global {
+  namespace NodeJS {
+    interface Global {
+      window: any;
+    }
+  }
+}
+
 describe('Vipps', () => {
   beforeEach(() => {
     global.window = { location: { href: undefined } }

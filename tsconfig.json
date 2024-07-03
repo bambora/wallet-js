@@ -1,6 +1,6 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    "target": "es6",
     "module": "commonjs",
     "moduleResolution": "node",
     "emitDecoratorMetadata": true,
@@ -17,7 +17,6 @@
     "inlineSourceMap": true,
     "lib": [
       "dom",
-      "es5",
       "es6"
     ],
     "rootDir": "./src",
@@ -29,6 +28,6 @@
   "exclude": [
     "node_modules",
     "dist",
-    "test/**/*.spec.ts"
+    "test/*.spec.ts"
   ]
 }

@@ -15,6 +15,14 @@ const sandbox = chai.spy.sandbox()
 const dom = new JSDOM('<!DOCTYPE html>')
 const document = dom.window.document
 
+declare global {
+  namespace NodeJS {
+    interface Global {
+      window: any;
+    }
+  }
+}
+
 describe('Google Pay', () => {
   let loadScriptSpy
 

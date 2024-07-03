@@ -37,16 +37,3 @@ Run `npm test` in your terminal in the project root.
 ## Contributing
 
 Create a pull request or an issue. Thanks.
-
-## CI/CD
-
-CI/CD is done by Jenkins by reading the Jenkinsfile. The CI/CD pipeline goes through 4 steps:
-
-1. Build.
-2. Publish to Bambora CDN (files are uploaded to S3).
-3. Invalidate Bambora CDN Cache (the cache on CloudFront is invalidated).
-4. Publish to public NPM.
-
-This will be run on the master branch and with tagged commits only.
-
-Use `npm version` to bump the version and create a tagged commit as it ensures consistency.

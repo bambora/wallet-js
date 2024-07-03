@@ -7,6 +7,14 @@ import MobilePay, { IMobilePaySessionData } from '../src/clients/mobilepay.ts'
 const expect = chai.expect
 chai.use(chaiAsPromised)
 
+declare global {
+  namespace NodeJS {
+    interface Global {
+      window: any;
+    }
+  }
+}
+
 describe('MobilePay', () => {
   beforeEach(() => {
     global.window = { location: { href: undefined } }
