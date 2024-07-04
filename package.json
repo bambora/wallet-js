@@ -12,7 +12,7 @@
     "clean": "rimraf ./dist",
     "start": "npm run clean && webpack serve --config webpack.dev.js",
     "dev-build": "npm run clean && webpack --config webpack.dev.js",
-    "build": "npm run clean && webpack --config webpack.prod.js",
+    "build": "npm run lint && npm run clean && webpack --config webpack.prod.js",
     "lint": "eslint -c .eslintrc --ext .ts src test"
   },
   "repository": {
