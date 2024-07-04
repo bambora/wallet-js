@@ -1,13 +1,12 @@
-import { IOffsiteConfiguration, IWalletSessionData, WalletOffsiteBase, IClientConfiguration } from '../wallet'
+import { IClientConfiguration, IOffsiteConfiguration, IWalletSessionData, WalletOffsiteBase } from '../wallet'
 
-export default class MobilePay extends WalletOffsiteBase<
-  IMobilePayData,
-  IClientConfiguration,
-  IMobilePaySessionData
-> {
-  private _target = '_self'
+export default class MobilePay extends WalletOffsiteBase<IMobilePayData, IClientConfiguration, IMobilePaySessionData> {
+  private _target = '_top'
 
-  private constructor(configuration: IOffsiteConfiguration<IClientConfiguration, IMobilePaySessionData>, data?: IMobilePayData) {
+  private constructor(
+    configuration: IOffsiteConfiguration<IClientConfiguration, IMobilePaySessionData>,
+    data?: IMobilePayData,
+  ) {
     super(configuration, data)
 
     this._target = data?.target ?? this._target
@@ -15,13 +14,13 @@ export default class MobilePay extends WalletOffsiteBase<
 
   public static create(
     configuration: IOffsiteConfiguration<IClientConfiguration, IMobilePaySessionData>,
-    data?: IMobilePayData
+    data?: IMobilePayData,
   ): MobilePay {
     return new MobilePay(configuration, data)
   }
 
   public override start = async (): Promise<void> => {
-    const walletSession = await this.sessionProvider.fetchSession();
+    const walletSession = await this.sessionProvider.fetchSession()
 
     if (this._target === '_top') {
       const target = window.top ?? window
@@ -33,7 +32,7 @@ export default class MobilePay extends WalletOffsiteBase<
 }
 
 export interface IMobilePayData {
-  target: '_self' | '_top' | string
+  target: '_self' | '_top'
 }
 
 export interface IMobilePaySessionData extends IWalletSessionData {

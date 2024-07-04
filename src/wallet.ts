@@ -5,7 +5,7 @@ export interface ISessionProvider<TSessionData extends IWalletSessionData> {
 export interface IAuthorizeProvider<
   TSessionData extends IWalletSessionData,
   TAuthorizeData,
-  TAuthorizeResult extends IAuthorizeResult
+  TAuthorizeResult extends IAuthorizeResult,
 > {
   authorizePayment: (session: Session<TSessionData>, data: TAuthorizeData) => Promise<TAuthorizeResult>
 }
@@ -20,16 +20,22 @@ export interface IDirectConfiguration<
   TSessionData extends IWalletSessionData,
   TAuthorizeData,
   TAuthorizeResult extends IAuthorizeResult,
-  TAuthorizeProvider extends IAuthorizeProvider<TSessionData, TAuthorizeData, TAuthorizeResult>
->
-  extends IConfiguration<TClientConfiguration, TSessionData> {
+  TAuthorizeProvider extends IAuthorizeProvider<TSessionData, TAuthorizeData, TAuthorizeResult>,
+> extends IConfiguration<TClientConfiguration, TSessionData> {
   authorizeProvider?: TAuthorizeProvider
 }
 
-export interface IOffsiteConfiguration<TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData> extends IConfiguration<TClientConfiguration, TSessionData> {
-}
+export type IOffsiteConfiguration<
+  TClientConfiguration extends IClientConfiguration,
+  TSessionData extends IWalletSessionData,
+> = IConfiguration<TClientConfiguration, TSessionData>
 
-abstract class WalletBase<TData, TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData> implements IWallet {
+abstract class WalletBase<
+  TData,
+  TClientConfiguration extends IClientConfiguration,
+  TSessionData extends IWalletSessionData,
+> implements IWallet
+{
   protected data?: TData
   protected sessionProvider: ISessionProvider<TSessionData>
 
@@ -48,29 +54,41 @@ abstract class WalletBase<TData, TClientConfiguration extends IClientConfigurati
   }
 }
 
-export abstract class WalletOffsiteBase<TData, TClientConfiguration extends IClientConfiguration, TSessionData extends IWalletSessionData>
+export abstract class WalletOffsiteBase<
+    TData,
+    TClientConfiguration extends IClientConfiguration,
+    TSessionData extends IWalletSessionData,
+  >
   extends WalletBase<TData, TClientConfiguration, TSessionData>
-  implements IWalletOffsite {
+  implements IWalletOffsite
+{
   start: () => Promise<void>
 }
 
 export abstract class WalletDirectBase<
-  TData,
-  TClientConfiguration extends IClientConfiguration,
-  TSessionData extends IWalletSessionData,
-  TAuthorizeData,
-  TAuthorizeResult extends IAuthorizeResult,
-  TAuthorizeProvider extends IAuthorizeProvider<TSessionData, TAuthorizeData, TAuthorizeResult>,
->
+    TData,
+    TClientConfiguration extends IClientConfiguration,
+    TSessionData extends IWalletSessionData,
+    TAuthorizeData,
+    TAuthorizeResult extends IAuthorizeResult,
+    TAuthorizeProvider extends IAuthorizeProvider<TSessionData, TAuthorizeData, TAuthorizeResult>,
+  >
   extends WalletBase<TData, TClientConfiguration, TSessionData>
-  implements IWalletDirect {
+  implements IWalletDirect
+{
   protected override data: TData
   protected authorizeProvider: TAuthorizeProvider
 
   constructor(
-    configuration: IDirectConfiguration<TClientConfiguration, TSessionData, TAuthorizeData, TAuthorizeResult, TAuthorizeProvider>,
+    configuration: IDirectConfiguration<
+      TClientConfiguration,
+      TSessionData,
+      TAuthorizeData,
+      TAuthorizeResult,
+      TAuthorizeProvider
+    >,
     data: TData,
-    defaultAuthorizeProvider: TAuthorizeProvider
+    defaultAuthorizeProvider: TAuthorizeProvider,
   ) {
     super(configuration, data)
 
@@ -84,9 +102,11 @@ export interface IWalletButton<TButtonOptions> {
   createButton: (container: HTMLElement, options: TButtonOptions) => void
 }
 
-export interface IWalletData { }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IWalletData {}
 
-export interface IWalletSessionData { }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IWalletSessionData {}
 
 export interface IWalletDirect extends IWallet {
   start: () => Promise<IAuthorizeResult | void>
@@ -96,7 +116,8 @@ export interface IWalletOffsite extends IWallet {
   start: () => Promise<void>
 }
 
-interface IWallet { }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+interface IWallet {}
 
 export interface IAuthorizeResult {
   authorizeResult?: boolean
@@ -105,7 +126,8 @@ export interface IAuthorizeResult {
   redirectUrl: string
 }
 
-export interface IClientConfiguration { }
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
+export interface IClientConfiguration {}
 
 export type Session<TSessionData> = {
   data: TSessionData
