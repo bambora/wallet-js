@@ -56,7 +56,7 @@ agent("docker-concurrent") {
     notify_start("Building of ${gitTag} has started...")
 
     try {
-      docker.image("node:16.19.1").inside {
+      docker.image("node:20.11.1").inside {
         sh "npm ci"
         env.NODE_ENV = "production"
         sh "npm run build"
@@ -81,13 +81,13 @@ agent("docker-concurrent") {
       s3Upload(
         file: "dist/wallet.min.js",
         bucket: "bambora-static-prod-eu-west-1",
-        path: "wallet/v2/latest/wallet.min.js"
+        path: "wallet/v3/latest/wallet.min.js"
       )
 
       s3Upload(
         file: "dist/wallet.min.js",
         bucket: "bambora-static-prod-eu-west-1",
-        path: "wallet/v2/${gitTag}/wallet.min.js"
+        path: "wallet/v3/${gitTag}/wallet.min.js"
       )
     } catch (error) {
       notify_failure("Publishing of ${gitTag} to the Bambora CDN failed!")
@@ -95,8 +95,8 @@ agent("docker-concurrent") {
     }
     
     notify_success("""Publishing of ${gitTag} to the Bambora CDN was successful.\n
-Direct link: https://static.bambora.com/wallet/v2/latest/wallet.min.js
-Alternate link: https://static.bambora.com/wallet/v2/${gitTag}/wallet.min.js""")
+Direct link: https://static.bambora.com/wallet/v3/latest/wallet.min.js
+Alternate link: https://static.bambora.com/wallet/v3/${gitTag}/wallet.min.js""")
   }
 
   stage("Invalidate Bambora CDN Cache") {
@@ -113,8 +113,8 @@ Alternate link: https://static.bambora.com/wallet/v2/${gitTag}/wallet.min.js""")
       cfInvalidate(
         distribution: outputs.get("Distribution"),
         paths: [
-          "/wallet/v2/latest/*",
-          "/wallet/v2/${gitTag}/*"
+          "/wallet/v3/latest/*",
+          "/wallet/v3/${gitTag}/*"
         ]
       )
     } catch (error) {
@@ -139,7 +139,7 @@ Alternate link: https://static.bambora.com/wallet/v2/${gitTag}/wallet.min.js""")
         credentialsId: "public-npm-repository",
         variable: "NPM_AUTH_TOKEN"
       ]]) {
-        docker.image("node:16.19.1").inside {
+        docker.image("node:20.11.1").inside {
           sh "echo '//registry.npmjs.org/:_authToken=$NPM_AUTH_TOKEN' > .npmrc"
           sh "npm publish --access public"
         }

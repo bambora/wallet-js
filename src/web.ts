@@ -1,19 +1,22 @@
-import Wallet, { errors } from './index'
+import { GooglePay, MobilePay, Vipps } from './index'
 
 if (window) {
-  window.Bambora = window.Bambora || {}
-  window.Bambora.Wallet = window.Bambora.Wallet || Wallet
-  window.Bambora.WalletErrors = window.Bambora.WalletErrors || errors
+  window.WorldlineOnlineCheckout = window.WorldlineOnlineCheckout || {
+    GooglePay: GooglePay,
+    MobilePay: MobilePay,
+    Vipps: Vipps,
+  }
 }
 
 declare global {
-  interface Bambora {
-    Wallet?: typeof Wallet
-    WalletErrors?: typeof errors
+  interface WorldlineOnlineCheckout {
+    GooglePay: typeof GooglePay
+    MobilePay: typeof MobilePay
+    Vipps: typeof Vipps
   }
 
   interface Window {
-    Bambora: Bambora
+    WorldlineOnlineCheckout: WorldlineOnlineCheckout
   }
 }
 

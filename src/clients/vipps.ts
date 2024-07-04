@@ -1,31 +1,40 @@
-import { WalletRequestType } from '../request-types'
-import { IGenericWalletOptions, IWalletRequest, IWalletRequestData, IWalletResult } from '../wallet'
+import { IClientConfiguration, IOffsiteConfiguration, IWalletSessionData, WalletOffsiteBase } from '../wallet'
 
-@WalletRequestType('Vipps')
-export class VippsRequest implements IWalletRequest {
-  private _target = '_self'
+export default class Vipps extends WalletOffsiteBase<IVippsData, IClientConfiguration, IVippsSessionData> {
+  private _target = '_top'
 
-  constructor(private data: IVippsRequestData, options?: IGenericWalletOptions) {
-    if (options) {
-      if (options.target) {
-        this._target = options.target
-      }
-    }
+  private constructor(
+    configuration: IOffsiteConfiguration<IClientConfiguration, IVippsSessionData>,
+    data?: IVippsData,
+  ) {
+    super(configuration, data)
+
+    this._target = data?.target ?? this._target
   }
 
-  public initiate(): Promise<IWalletResult> {
+  public static create(
+    configuration: IOffsiteConfiguration<IClientConfiguration, IVippsSessionData>,
+    data?: IVippsData,
+  ): Vipps {
+    return new Vipps(configuration, data)
+  }
+
+  public override start = async (): Promise<void> => {
+    const walletSession = await this.sessionProvider.fetchSession()
+
     if (this._target === '_top') {
       const target = window.top ?? window
-      target.location.href = this.data.url
+      target.location.href = walletSession.data.url
     } else {
-      window.location.href = this.data.url
+      window.location.href = walletSession.data.url
     }
-
-    return new Promise<IWalletResult>(() => null)
   }
 }
 
-export interface IVippsRequestData extends IWalletRequestData {
+export interface IVippsData {
+  target: '_self' | '_top'
+}
+
+export interface IVippsSessionData extends IWalletSessionData {
   url: string
-  method: 'Redirect'
 }
