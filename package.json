@@ -1,6 +1,6 @@
 {
   "name": "@bambora/wallet",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "Worldline Online Checkout JavaScript API for Wallet transactions",
   "main": "dist/index.js",
   "types": "dist/types/index.d.ts",
@@ -26,6 +26,7 @@
   },
   "homepage": "https://github.com/bambora/wallet-js#readme",
   "devDependencies": {
+    "@types/applepayjs": "^14.0.8",
     "@types/chai": "4.3.4",
     "@types/chai-as-promised": "7.1.5",
     "@types/chai-spies": "^1.0.6",

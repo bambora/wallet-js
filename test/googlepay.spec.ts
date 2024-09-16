@@ -84,7 +84,7 @@ describe('Google Pay', () => {
   describe('#isReady()', () => {
     ;[
       { value: true, expected: true },
-      { value: true, expected: true },
+      { value: false, expected: false },
     ].forEach((data) => {
       it('should check isReady() on Google Pay wallet', async () => {
         const googlePay = await GooglePay.create({ sessionProvider: {} as never }, {
