@@ -46,6 +46,8 @@ export default class ApplePay
     >,
     data: ApplePayJS.ApplePayPaymentRequest,
   ): Promise<ApplePay> {
+    if (window.ApplePaySession == undefined) throw new Error('ApplePaySession not available')
+
     const applePay = new ApplePay(configuration, data)
 
     await applePay.init(data)
@@ -86,9 +88,8 @@ export default class ApplePay
 
   public override start = async (): Promise<IAuthorizeResult> => {
     return new Promise((resolve, reject) => {
-      if (window.ApplePaySession == undefined) throw new Error('ApplePaySession not available')
-
-      const applePaySession = new window.ApplePaySession(3, this.applePaySessionData)
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
+      const applePaySession = new window.ApplePaySession!(3, this.applePaySessionData)
 
       let walletSession: Session<IApplePaySessionData>
 
@@ -107,7 +108,14 @@ export default class ApplePay
       applePaySession.onpaymentauthorized = async (event: ApplePayJS.ApplePayPaymentAuthorizedEvent) => {
         const authorizePaymentResponse = await this.authorizeProvider.authorizePayment(walletSession, event.payment)
 
-        applePaySession.completePayment(authorizePaymentResponse.result)
+        /* eslint-disable @typescript-eslint/no-non-null-assertion */
+        const authorizeResult =
+          authorizePaymentResponse.authorizeResult ?? authorizePaymentResponse.wait
+            ? window.ApplePaySession!.STATUS_SUCCESS
+            : window.ApplePaySession!.STATUS_FAILURE
+        /* eslint-enable @typescript-eslint/no-non-null-assertion */
+
+        applePaySession.completePayment(authorizeResult)
 
         resolve(authorizePaymentResponse)
       }

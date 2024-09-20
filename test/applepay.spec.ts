@@ -43,7 +43,7 @@ describe('Apple Pay', () => {
   })
 
   describe('#create()', () => {
-    it('should return a Apple Pay wallet', async () => {
+    it('should return an Apple Pay wallet', async () => {
       const applePay = await ApplePay.create(
         {
           sessionProvider: {} as never,
@@ -139,7 +139,7 @@ describe('Apple Pay', () => {
   })
 
   describe('#start()', () => {
-    it('should start a Apple Pay session', async () => {
+    it('should start an Apple Pay session', async () => {
       const walletSession: Session<IApplePaySessionData> = {
         data: {
           Identifier: 'Identifier123',
