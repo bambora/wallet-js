@@ -12,8 +12,8 @@ import {
 
 export default class ApplePay
   extends WalletDirectBase<
-    ApplePayJS.ApplePayPaymentRequest,
-    IClientConfiguration,
+    IApplePayData,
+    IApplePayClientConfiguration,
     IApplePaySessionData,
     ApplePayJS.ApplePayPayment,
     IApplePayCallbackResponse,
@@ -21,33 +21,34 @@ export default class ApplePay
   >
   implements IWalletButton<ButtonOptions>
 {
-  private applePaySessionData: ApplePayJS.ApplePayPaymentRequest
+  private clientConfiguration?: IApplePayClientConfiguration
+  private applePaySessionData: IApplePayData
 
   private constructor(
     configuration: IDirectConfiguration<
-      IClientConfiguration,
+      IApplePayClientConfiguration,
       IApplePaySessionData,
       ApplePayJS.ApplePayPayment,
       IApplePayCallbackResponse,
       IAuthorizeProvider<IApplePaySessionData, ApplePayJS.ApplePayPayment, IApplePayCallbackResponse>
     >,
-    data: ApplePayJS.ApplePayPaymentRequest,
+    data: IApplePayData,
   ) {
     super(configuration, data, defaultAuthorizeProvider)
+
+    this.clientConfiguration = configuration.clientConfiguration
   }
 
   public static async create(
     configuration: IDirectConfiguration<
-      IClientConfiguration,
+      IApplePayClientConfiguration,
       IApplePaySessionData,
       ApplePayJS.ApplePayPayment,
       IApplePayCallbackResponse,
       IAuthorizeProvider<IApplePaySessionData, ApplePayJS.ApplePayPayment, IApplePayCallbackResponse>
     >,
-    data: ApplePayJS.ApplePayPaymentRequest,
+    data: IApplePayData,
   ): Promise<ApplePay> {
-    if (window.ApplePaySession == undefined) throw new Error('ApplePaySession not available')
-
     const applePay = new ApplePay(configuration, data)
 
     await applePay.init(data)
@@ -55,18 +56,27 @@ export default class ApplePay
     return applePay
   }
 
-  public static isAvailable = () => {
-    return (
-      window.ApplePaySession !== undefined &&
-      window.ApplePaySession.supportsVersion(3) &&
-      window.ApplePaySession.canMakePayments()
-    )
-  }
-
-  private init = async (data: ApplePayJS.ApplePayPaymentRequest) => {
-    await loadScript('https://applepay.cdn-apple.com/jsapi/v1.1.0/apple-pay-sdk.js')
+  private init = async (data: IApplePayData) => {
+    await loadScript('https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js')
 
     this.applePaySessionData = data
+  }
+
+  public isAvailable = async () => {
+    if (!window.ApplePaySession || !window.ApplePaySession.supportsVersion(3)) {
+      return false
+    }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const response = await (window.ApplePaySession as any).applePayCapabilities(
+      this.clientConfiguration?.merchantId ?? 'platformintegrator.worldline-online-checkout-prod',
+    )
+    const status = response.paymentCredentialStatus
+
+    return (
+      status == 'paymentCredentialStatusAvailable' ||
+      status == 'paymentCredentialStatusUnknown' ||
+      status == 'paymentCredentialsUnavailable'
+    )
   }
 
   public createButton = (container: HTMLElement, options: ButtonOptions) => {
@@ -88,8 +98,12 @@ export default class ApplePay
 
   public override start = async (): Promise<IAuthorizeResult> => {
     return new Promise((resolve, reject) => {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      const applePaySession = new window.ApplePaySession!(3, this.applePaySessionData)
+      if (!window.ApplePaySession) throw new Error('ApplePaySession not available')
+
+      const applePaySession = new window.ApplePaySession(3, {
+        ...this.applePaySessionData,
+        merchantCapabilities: this.applePaySessionData.merchantCapabilities ?? ['supports3DS'],
+      })
 
       let walletSession: Session<IApplePaySessionData>
 
@@ -160,6 +174,10 @@ export interface IApplePayCallbackResponse extends IAuthorizeResult {
   result: ApplePayJS.ApplePayPaymentAuthorizationResult
 }
 
+export interface IApplePayClientConfiguration extends IClientConfiguration {
+  merchantId?: string
+}
+
 export interface ButtonOptions {
   onClick: (event: Event) => void
   buttonType?: ApplePayButtonType
@@ -228,3 +246,7 @@ export type ApplePayButtonLocale =
   | 'zh-CN'
   | 'zh-HK'
   | 'zh-TW'
+
+export interface IApplePayData extends Omit<ApplePayJS.ApplePayPaymentRequest, 'merchantCapabilities'> {
+  merchantCapabilities?: ApplePayJS.ApplePayMerchantCapability[]
+}

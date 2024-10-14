@@ -76,10 +76,10 @@ describe('Apple Pay', () => {
 
   describe('#isAvailable()', () => {
     ;[
-      { applePaySession: false, supportsVersion: false, canMakePayments: false, expected: false },
-      { applePaySession: true, supportsVersion: false, canMakePayments: false, expected: false },
-      { applePaySession: true, supportsVersion: true, canMakePayments: false, expected: false },
-      { applePaySession: true, supportsVersion: true, canMakePayments: true, expected: true },
+      { applePaySession: false, supportsVersion: false, applePayCapabilities: false, expected: false },
+      { applePaySession: true, supportsVersion: false, applePayCapabilities: false, expected: false },
+      { applePaySession: true, supportsVersion: true, applePayCapabilities: false, expected: false },
+      { applePaySession: true, supportsVersion: true, applePayCapabilities: true, expected: true },
     ].forEach((data) => {
       it('should check isAvailable() on Apple Pay wallet', async () => {
         global.window = data.applePaySession ? global.window : { ApplePaySession: undefined }
@@ -96,12 +96,28 @@ describe('Apple Pay', () => {
 
           canMakePaymentsSpy = sandbox.on(
             global.window.ApplePaySession,
-            'canMakePayments',
-            (): boolean => data.canMakePayments,
+            'applePayCapabilities',
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            (): Promise<any> =>
+              new Promise((resolve) =>
+                resolve(
+                  data.applePayCapabilities
+                    ? { paymentCredentialStatus: 'paymentCredentialStatusAvailable' }
+                    : { paymentCredentialStatus: '' },
+                ),
+              ),
           )
         }
 
-        const result = ApplePay.isAvailable()
+        const applePay = await ApplePay.create(
+          {
+            sessionProvider: {} as never,
+            clientConfiguration: {} as never,
+          },
+          {} as never,
+        )
+
+        const result = await applePay.isAvailable()
 
         expect(result).to.be.equal(data.expected)
         if (data.applePaySession) {
@@ -205,7 +221,7 @@ class ApplePaySessionMock {
 
   supportsVersion: (version: number) => boolean
 
-  canMakePayments: () => boolean
+  applePayCapabilities: (merchantId: string) => Promise<string>
 
   onvalidatemerchant: (event: ApplePayJS.ApplePayValidateMerchantEvent) => void
 
