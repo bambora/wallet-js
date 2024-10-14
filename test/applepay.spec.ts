@@ -221,7 +221,7 @@ class ApplePaySessionMock {
 
   supportsVersion: (version: number) => boolean
 
-  applePayCapabilities: (merchantId: string) => Promise<string>
+  applePayCapabilities: (merchantId: string) => Promise<never>
 
   onvalidatemerchant: (event: ApplePayJS.ApplePayValidateMerchantEvent) => void
 

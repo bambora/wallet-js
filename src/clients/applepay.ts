@@ -67,7 +67,7 @@ export default class ApplePay
       return false
     }
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = await (window.ApplePaySession as any).applePayCapabilities(
+    const response = await window.ApplePaySession.applePayCapabilities(
       this.clientConfiguration?.merchantId ?? 'platformintegrator.worldline-online-checkout-prod',
     )
     const status = response.paymentCredentialStatus
