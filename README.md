@@ -9,6 +9,7 @@ Currently, the following wallet solutions are supported:
 - MobilePay
 - Vipps
 - Google Pay
+- Apple Pay
 
 You will need a merchant account with Worldline Online Checkout to use this library.
 
