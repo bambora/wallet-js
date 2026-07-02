@@ -12,6 +12,12 @@ export default class Vipps extends WalletOffsiteBase<IVippsData, IClientConfigur
     this._target = data?.target ?? this._target
   }
 
+  /**
+   * Create a new Vipps object to handle a Vipps session
+   * @param {IOffsiteConfiguration<IClientConfiguration, IVippsSessionData>} configuration - The configuration for the Vipps session, including session provider, client configuration etc.
+   * @param {IVippsData} data - The VippsData used for the Vipps session
+   * @returns {Vipps} The created Vipps object
+   */
   public static create(
     configuration: IOffsiteConfiguration<IClientConfiguration, IVippsSessionData>,
     data?: IVippsData,
@@ -19,6 +25,9 @@ export default class Vipps extends WalletOffsiteBase<IVippsData, IClientConfigur
     return new Vipps(configuration, data)
   }
 
+  /**
+   * Start the Vipps session to initiate Vipps for payment authorization
+   */
   public override start = async (): Promise<void> => {
     const walletSession = await this.sessionProvider.fetchSession()
 

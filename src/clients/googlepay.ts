@@ -1,4 +1,4 @@
-import { loadScript } from '../utils/load-script'
+import loadScript from '../utils/load-script'
 import {
   IAuthorizeProvider,
   IAuthorizeResult,
@@ -36,6 +36,12 @@ export default class GooglePay
     super(configuration, data, defaultAuthorizeProvider)
   }
 
+  /**
+   * Create a new GooglePay object to handle an Google Pay session
+   * @param {IDirectConfiguration<IGooglePayClientConfiguration, IGooglePaySessionData, google.payments.api.PaymentData, IGooglePayCallbackResponse, IGooglePayAuthorizeProvider>} configuration - The configuration for the Google Pay session, including session and authorize providers, client configuration etc.
+   * @param {IGooglePayData} data - The GooglePayData used for the Google Pay session
+   * @returns {Promise<GooglePay>} Promise object with the created GooglePay object
+   */
   public static async create(
     configuration: IDirectConfiguration<
       IGooglePayClientConfiguration,
@@ -53,6 +59,10 @@ export default class GooglePay
     return googlePay
   }
 
+  /**
+   * Checks if the device is ready for Google Pay payments, using {@link https://developers.google.com/pay/api/web/reference/client#isReadyToPay|isReadyToPay}
+   * @returns {Promise<boolean>} true if device is ready for Google Pay payments, and false if not
+   */
   public isReady = async (): Promise<boolean> => {
     const isReadyToPayResponse = await this.client.isReadyToPay({
       allowedPaymentMethods: this.mapAllowedPaymentMethods(this.data.allowedPaymentMethods),
@@ -63,11 +73,20 @@ export default class GooglePay
     return isReadyToPayResponse.result
   }
 
+  /**
+   * Creates a google-pay-button with optional overrides for buttonstyle, type and locale etc. Uses the {@link https://developers.google.com/pay/api/web/reference/client#createButton|createButton} convenience method on Google Pay PaymentsClient
+   * @param {HTMLElement} container - The container that the button will be appended to
+   * @param {google.payments.api.ButtonOptions} options - The options used for the button, including onClick event handler and optional styling options. See {@link https://developers.google.com/pay/api/web/reference/request-objects#ButtonOptions|ButtonOptions} for more
+   */
   public createButton = (container: HTMLElement, options: google.payments.api.ButtonOptions): void => {
     const button = this.client.createButton(options)
     container.appendChild(button)
   }
 
+  /**
+   * Start the Google Pay session to initiate the Google Pay payment sheet for payment authorization
+   * @returns {Promise<IAuthorizeResult | void>} Promise object with either authorize result of the Google Pay session, or in case of 3DS authentication, authorizeProvider.stepUp method is called instead
+   */
   public override start = async (): Promise<IAuthorizeResult | void> => {
     const paymentData = await this.client.loadPaymentData({
       ...this.data,
@@ -93,8 +112,8 @@ export default class GooglePay
   }
 
   private init = async (environment?: google.payments.api.PaymentOptions['environment']) => {
-    if (!('google' in (window || global) && !!google?.payments?.api?.PaymentsClient)) {
-      await loadScript('https://pay.google.com/gp/p/js/pay.js')
+    if (!('google' in (window || global) && !!window.google?.payments?.api?.PaymentsClient)) {
+      await loadScript.load('https://pay.google.com/gp/p/js/pay.js')
     }
 
     this.client = new window.google.payments.api.PaymentsClient({
@@ -203,8 +222,11 @@ export interface IGooglePayClientConfiguration extends IClientConfiguration {
   environment?: google.payments.api.PaymentOptions['environment']
 }
 
-interface IGooglePayAuthorizeProvider
-  extends IAuthorizeProvider<IGooglePaySessionData, google.payments.api.PaymentData, IGooglePayCallbackResponse> {
+interface IGooglePayAuthorizeProvider extends IAuthorizeProvider<
+  IGooglePaySessionData,
+  google.payments.api.PaymentData,
+  IGooglePayCallbackResponse
+> {
   stepUp: (authorizeResult: IGooglePayCallbackResponse) => Promise<void>
 }
 
@@ -212,15 +234,19 @@ interface IGooglePayPaymentGatewayTokenizationSpecification {
   gatewayMerchantId: string
 }
 
-interface IGooglePayPaymentMethodTokenizationSpecification
-  extends Omit<google.payments.api.PaymentGatewayTokenizationSpecification, 'type' | 'parameters'> {
+interface IGooglePayPaymentMethodTokenizationSpecification extends Omit<
+  google.payments.api.PaymentGatewayTokenizationSpecification,
+  'type' | 'parameters'
+> {
   parameters: IGooglePayPaymentGatewayTokenizationSpecification
 }
 
 type IGooglePayCardParameters = Omit<google.payments.api.CardParameters, 'allowedAuthMethods'>
 
-interface IGooglePayPaymentMethodSpecification
-  extends Omit<google.payments.api.PaymentMethodSpecification, 'type' | 'parameters' | 'tokenizationSpecification'> {
+interface IGooglePayPaymentMethodSpecification extends Omit<
+  google.payments.api.PaymentMethodSpecification,
+  'type' | 'parameters' | 'tokenizationSpecification'
+> {
   parameters: IGooglePayCardParameters
   tokenizationSpecification: IGooglePayPaymentMethodTokenizationSpecification
 }
@@ -229,11 +255,10 @@ interface IGooglePayTransactionInfo extends Omit<google.payments.api.Transaction
   totalPriceStatus?: google.payments.api.TotalPriceStatus
 }
 
-export interface IGooglePayData
-  extends Omit<
-    google.payments.api.PaymentDataRequest,
-    'apiVersion' | 'apiVersionMinor' | 'allowedPaymentMethods' | 'transactionInfo'
-  > {
+export interface IGooglePayData extends Omit<
+  google.payments.api.PaymentDataRequest,
+  'apiVersion' | 'apiVersionMinor' | 'allowedPaymentMethods' | 'transactionInfo'
+> {
   apiVersion?: number
   apiVersionMinor?: number
   allowedPaymentMethods: Array<IGooglePayPaymentMethodSpecification>

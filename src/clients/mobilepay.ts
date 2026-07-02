@@ -12,6 +12,12 @@ export default class MobilePay extends WalletOffsiteBase<IMobilePayData, IClient
     this._target = data?.target ?? this._target
   }
 
+  /**
+   * Create a new MobilePay object to handle a MobilePay session
+   * @param {IOffsiteConfiguration<IClientConfiguration, IMobilePaySessionData>} configuration - The configuration for the MobilePay session, including session provider, client configuration etc.
+   * @param {IMobilePayData} data - The MobilePayData used for the MobilePay session
+   * @returns {MobilePay} The created MobilePay object
+   */
   public static create(
     configuration: IOffsiteConfiguration<IClientConfiguration, IMobilePaySessionData>,
     data?: IMobilePayData,
@@ -19,6 +25,9 @@ export default class MobilePay extends WalletOffsiteBase<IMobilePayData, IClient
     return new MobilePay(configuration, data)
   }
 
+  /**
+   * Start the MobilePay session to initiate MobilePay for payment authorization
+   */
   public override start = async (): Promise<void> => {
     const walletSession = await this.sessionProvider.fetchSession()
 

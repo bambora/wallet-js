@@ -1,26 +1,13 @@
-import 'mocha'
-import * as chai from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
+import MobilePay from '../src/clients/mobilepay.ts'
 
-import MobilePay, { IMobilePaySessionData } from '../src/clients/mobilepay.ts'
-import { Session } from '../src/wallet'
+import { expect, spy } from './setup/chai-setup.ts'
 
-const expect = chai.expect
-chai.use(chaiAsPromised)
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    interface Global {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      window: any
-    }
-  }
-}
+import type { IMobilePaySessionData } from '../src/clients/mobilepay.ts'
+import type { Session } from '../src/wallet'
 
 describe('MobilePay', () => {
   beforeEach(() => {
-    global.window = { location: { href: undefined } }
+    window = (window && { location: { href: '' } as Location }) as Window & typeof globalThis
   })
 
   describe('#create()', () => {
@@ -33,7 +20,7 @@ describe('MobilePay', () => {
     })
 
     it('should throw an error due to missing configuration', () => {
-      expect(() => MobilePay.create(undefined as never)).to.throw(Error, 'Configuration must be provided')
+      expect(() => MobilePay.create(undefined as never)).to.throw(Error, /^Configuration must be provided$/)
     })
 
     it('should throw an error due to missing sessionProvider on configuration', () => {
@@ -42,7 +29,7 @@ describe('MobilePay', () => {
       }
       expect(() => MobilePay.create(configuration as never)).to.throw(
         Error,
-        'Configuration sessionProvider must be implemented',
+        /^Configuration sessionProvider must be implemented$/,
       )
     })
   })
@@ -50,21 +37,22 @@ describe('MobilePay', () => {
   describe('#start()', () => {
     it('should start a MobilePay session', async () => {
       const walletSession: Session<IMobilePaySessionData> = { data: { Url: 'https://mobilepay.com' } }
-      const sessionProviderLike = chai.spy.interface({
+      const sessionProviderLike = spy.interface({
         fetchSession: async (): Promise<Session<IMobilePaySessionData>> => walletSession,
       })
 
-      const mobilePay = MobilePay.create({ sessionProvider: sessionProviderLike })
+      const mobilePay = MobilePay.create({ sessionProvider: sessionProviderLike }, { target: '_self' })
 
       await mobilePay.start()
 
-      expect(global.window.location.href).to.be.eq(walletSession.data.Url)
+      console.warn(window.location.href)
+      expect(window.location.href).to.be.eq(walletSession.data.Url)
       expect(sessionProviderLike.fetchSession).to.be.called.once
     })
 
     it('should throw an error on fetchSession failure', async () => {
       const error = new Error()
-      const sessionProviderLike = chai.spy.interface({
+      const sessionProviderLike = spy.interface({
         fetchSession: async (): Promise<Session<IMobilePaySessionData>> => {
           throw error
         },
@@ -72,7 +60,7 @@ describe('MobilePay', () => {
 
       const mobilePay = MobilePay.create({ sessionProvider: sessionProviderLike })
 
-      expect(mobilePay.start()).to.eventually.throw(error)
+      await expect(mobilePay.start()).to.be.rejectedWith(error)
       expect(sessionProviderLike.fetchSession).to.be.called.once
     })
   })

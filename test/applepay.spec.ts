@@ -1,45 +1,22 @@
-import 'mocha'
-import * as chai from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
-import * as chaiSpies from 'chai-spies'
-import { JSDOM } from 'jsdom'
+import ApplePay from '../src/clients/applepay.ts'
+import loadScript from '../src/utils/load-script.ts'
 
-import ApplePay, { ButtonOptions, IApplePayCallbackResponse, IApplePaySessionData } from '../src/clients/applepay.ts'
-import * as loadScript from '../src/utils/load-script.ts'
-import { Session } from '../src/wallet'
+import { expect, spy } from './setup/chai-setup.ts'
 
-const expect = chai.expect
-chai.use(chaiAsPromised)
-chai.use(chaiSpies)
-const sandbox = chai.spy.sandbox()
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    interface Global {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      window: any
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      document: Document
-    }
-  }
-}
+import type { ButtonOptions, IApplePayCallbackResponse, IApplePaySessionData } from '../src/clients/applepay.ts'
+import type { Session } from '../src/wallet'
 
 describe('Apple Pay', () => {
-  let loadScriptSpy
+  let loadScriptSpy: ReturnType<typeof spy.on>
 
   beforeEach(() => {
-    global.window = { ApplePaySession: ApplePaySessionMock }
+    window.ApplePaySession = ApplePaySessionMock as never
 
-    const dom = new JSDOM('<!DOCTYPE html>')
-    global.document = dom.window.document
-
-    // eslint-disable-next-line @typescript-eslint/no-empty-function
-    loadScriptSpy = sandbox.on(loadScript, 'loadScript', () => {})
+    loadScriptSpy = spy.on(loadScript, 'load', () => {})
   })
 
   afterEach(() => {
-    sandbox.restore()
+    spy.restore()
   })
 
   describe('#create()', () => {
@@ -54,12 +31,13 @@ describe('Apple Pay', () => {
 
       expect(applePay).to.be.instanceOf(ApplePay)
       expect(loadScriptSpy).to.have.been.called.once
+      expect(loadScriptSpy).to.have.been.called.with('https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js')
     })
 
     it('should throw an error due to missing configuration', async () => {
-      expect(ApplePay.create({} as never, undefined as never)).to.eventually.throw(
+      await expect(ApplePay.create(undefined as never, undefined as never)).to.be.rejectedWith(
         Error,
-        'Configuration must be provided',
+        /^Configuration must be provided$/,
       )
     })
 
@@ -67,47 +45,34 @@ describe('Apple Pay', () => {
       const configuration = {
         sessionProvider: undefined,
       }
-      expect(ApplePay.create({} as never, configuration as never)).to.eventually.throw(
+      await expect(ApplePay.create({} as never, configuration as never)).to.be.rejectedWith(
         Error,
-        'Configuration sessionProvider must be implemented',
+        /^Configuration sessionProvider must be implemented$/,
       )
     })
   })
 
   describe('#isAvailable()', () => {
     ;[
-      { applePaySession: false, supportsVersion: false, applePayCapabilities: false, expected: false },
-      { applePaySession: true, supportsVersion: false, applePayCapabilities: false, expected: false },
-      { applePaySession: true, supportsVersion: true, applePayCapabilities: false, expected: false },
-      { applePaySession: true, supportsVersion: true, applePayCapabilities: true, expected: true },
+      { applePaySession: false, supportsVersion: false, canMakePayments: false, expected: false },
+      { applePaySession: true, supportsVersion: false, canMakePayments: false, expected: false },
+      { applePaySession: true, supportsVersion: true, canMakePayments: false, expected: false },
+      { applePaySession: true, supportsVersion: true, canMakePayments: true, expected: true },
     ].forEach((data) => {
       it('should check isAvailable() on Apple Pay wallet', async () => {
-        global.window = data.applePaySession ? global.window : { ApplePaySession: undefined }
+        const supportsVersionSpy = spy.on(
+          window.ApplePaySession,
+          'supportsVersion',
+          (): boolean => data.supportsVersion,
+        )
 
-        let supportsVersionSpy
-        let canMakePaymentsSpy
+        const canMakePaymentsSpy = spy.on(
+          window.ApplePaySession,
+          'canMakePayments',
+          () => new Promise((resolve) => resolve(data.canMakePayments)),
+        )
 
-        if (data.applePaySession) {
-          supportsVersionSpy = sandbox.on(
-            global.window.ApplePaySession,
-            'supportsVersion',
-            (): boolean => data.supportsVersion,
-          )
-
-          canMakePaymentsSpy = sandbox.on(
-            global.window.ApplePaySession,
-            'applePayCapabilities',
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            (): Promise<any> =>
-              new Promise((resolve) =>
-                resolve(
-                  data.applePayCapabilities
-                    ? { paymentCredentialStatus: 'paymentCredentialStatusAvailable' }
-                    : { paymentCredentialStatus: '' },
-                ),
-              ),
-          )
-        }
+        window.ApplePaySession = (data.applePaySession ? window.ApplePaySession : undefined) as never
 
         const applePay = await ApplePay.create(
           {
@@ -120,12 +85,73 @@ describe('Apple Pay', () => {
         const result = await applePay.isAvailable()
 
         expect(result).to.be.equal(data.expected)
-        if (data.applePaySession) {
-          const supportsVersionSpyExpectedCall = data.applePaySession ? 1 : 0
-          expect(supportsVersionSpy).to.be.called.exactly(supportsVersionSpyExpectedCall)
-          const canMakePaymentsSpyExpectedCalls = data.applePaySession && data.supportsVersion ? 1 : 0
-          expect(canMakePaymentsSpy).to.be.called.exactly(canMakePaymentsSpyExpectedCalls)
+        if (!data.applePaySession) {
+          expect(window.ApplePaySession).to.be.undefined
         }
+        expect(supportsVersionSpy).to.be.called.exactly(data.applePaySession ? 1 : 0)
+        expect(canMakePaymentsSpy).to.be.called.exactly(data.applePaySession && data.supportsVersion ? 1 : 0)
+      })
+    })
+  })
+
+  describe('#isCapable()', () => {
+    it('should check isCapable() on Apple Pay wallet', async () => {
+      const merchantId = 'merchantId123'
+
+      const supportsVersionSpy = spy.on(window.ApplePaySession, 'supportsVersion', (): boolean => true)
+
+      const applePayCapabilitiesSpy = spy.on(
+        window.ApplePaySession,
+        'applePayCapabilities',
+        () => new Promise((resolve) => resolve({ paymentCredentialStatus: 'paymentCredentialsAvailable' })),
+      )
+
+      const applePay = await ApplePay.create(
+        {
+          sessionProvider: {} as never,
+          clientConfiguration: { merchantId },
+        },
+        {} as never,
+      )
+
+      const result = await applePay.isCapable()
+
+      expect(result).to.be.equal('paymentCredentialsAvailable')
+      expect(supportsVersionSpy).to.be.called.once
+      expect(supportsVersionSpy).to.be.called.with(3)
+      expect(applePayCapabilitiesSpy).to.be.called.once
+      expect(applePayCapabilitiesSpy).to.be.called.with(merchantId)
+    })
+    ;[
+      { applePaySession: false, supportsVersion: false, merchantId: undefined },
+      { applePaySession: true, supportsVersion: false, merchantId: '' },
+    ].forEach((data) => {
+      it('should throw an error due to ApplePaySession not available', async () => {
+        const supportsVersionSpy = spy.on(
+          window.ApplePaySession,
+          'supportsVersion',
+          (): boolean => data.supportsVersion,
+        )
+
+        const applePayCapabilitiesSpy = spy.on(window.ApplePaySession, 'applePayCapabilities')
+
+        window.ApplePaySession = (data.applePaySession ? window.ApplePaySession : undefined) as never
+
+        const applePay = await ApplePay.create(
+          {
+            sessionProvider: {} as never,
+            clientConfiguration: {} as never,
+          },
+          {} as never,
+        )
+
+        await expect(applePay.isCapable()).to.be.rejectedWith(Error, /^ApplePaySession not available$/)
+
+        if (!data.applePaySession) {
+          expect(window.ApplePaySession).to.be.undefined
+        }
+        expect(supportsVersionSpy).to.be.called.exactly(data.applePaySession ? 1 : 0)
+        expect(applePayCapabilitiesSpy).to.not.be.called
       })
     })
   })
@@ -135,7 +161,6 @@ describe('Apple Pay', () => {
       const applePay = await ApplePay.create({ sessionProvider: {} as never }, {} as never)
 
       const buttonOptions: ButtonOptions = {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         onClick: () => {},
         buttonLocale: 'en-GB',
         buttonStyle: 'black',
@@ -163,7 +188,7 @@ describe('Apple Pay', () => {
           PaymentSession: '{"paymentsession": "PaymentSession123"}',
         },
       }
-      const sessionProviderLike = chai.spy.interface({
+      const sessionProviderLike = spy.interface({
         fetchSession: async (): Promise<Session<IApplePaySessionData>> => walletSession,
       })
 
@@ -176,7 +201,7 @@ describe('Apple Pay', () => {
           status: 1,
         },
       }
-      const authorizeProviderLike = chai.spy.interface({
+      const authorizeProviderLike = spy.interface({
         authorizePayment: async (): Promise<IApplePayCallbackResponse> => authorizeResult,
       })
 
@@ -194,11 +219,11 @@ describe('Apple Pay', () => {
       expect(applePay).to.be.instanceOf(ApplePay)
       expect(sessionProviderLike.fetchSession).to.be.called.once
       expect(authorizeProviderLike.authorizePayment).to.be.called.once
-      expect(authorizeProviderLike.authorizePayment).to.be.called.with(walletSession)
+      expect(authorizeProviderLike.authorizePayment).to.called.with(walletSession)
     })
 
     it('it should throw an error due to sessionProvider.fetchSession() error', async () => {
-      const sessionProviderLike = chai.spy.interface({
+      const sessionProviderLike = spy.interface({
         fetchSession: async (): Promise<Session<IApplePaySessionData>> => {
           throw new Error()
         },
@@ -209,23 +234,19 @@ describe('Apple Pay', () => {
         {} as ApplePayJS.ApplePayPaymentRequest,
       )
 
-      expect(applePay.start()).to.eventually.throw(Error)
+      await expect(applePay.start()).to.be.rejectedWith(Error)
       expect(sessionProviderLike.fetchSession).to.be.called.once
     })
   })
 })
 
 class ApplePaySessionMock {
-  // eslint-disable-next-line @typescript-eslint/no-empty-function, @typescript-eslint/no-unused-vars
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   constructor(version: number, paymentRequest: ApplePayJS.ApplePayPaymentRequest) {}
 
-  supportsVersion: (version: number) => boolean
+  onvalidatemerchant!: (event: ApplePayJS.ApplePayValidateMerchantEvent) => void
 
-  applePayCapabilities: (merchantId: string) => Promise<never>
-
-  onvalidatemerchant: (event: ApplePayJS.ApplePayValidateMerchantEvent) => void
-
-  onpaymentauthorized: (event: ApplePayJS.ApplePayPaymentAuthorizedEvent) => void
+  onpaymentauthorized!: (event: ApplePayJS.ApplePayPaymentAuthorizedEvent) => void
 
   begin = () => {
     this.onvalidatemerchant({} as never)
@@ -233,10 +254,11 @@ class ApplePaySessionMock {
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   completeMerchantValidation = (merchantSession: never) => {
-    // eslint-disable-next-line
     this.onpaymentauthorized({} as ApplePayJS.ApplePayPaymentAuthorizedEvent)
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-empty-function
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   completePayment = (result: never) => {}
+
+  abort = () => {}
 }

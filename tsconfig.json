@@ -1,33 +1,29 @@
 {
   "compilerOptions": {
-    "target": "es5",
-    "module": "commonjs",
+    "module": "es2015",
     "moduleResolution": "node",
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true,
-    "allowSyntheticDefaultImports": true,
+    "target": "es5",
+    "ignoreDeprecations": "6.0",
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "declaration": true,
+    "declarationDir": "./dist/types",
+    "inlineSourceMap": false,
+    "alwaysStrict": true,
     "removeComments": true,
+    "strict": true,
+    "lib": ["dom", "es5", "es2015"],
+    "types": ["applepayjs", "googlepay", "node"],
     "noImplicitAny": false,
     "isolatedModules": true,
-    "noImplicitReturns": true,
-    "declaration": true,
-    "strictNullChecks": true,
-    "declarationDir": "./dist/types",
-    "resolveJsonModule": true,
-    "inlineSourceMap": true,
-    "lib": [
-      "dom",
-      "es5"
-    ],
-    "rootDir": "./src",
-    "outDir": "./dist"
+    "strictPropertyInitialization": false,
   },
   "include": [
-    "src/**/*"
-  ],
+    "src/**/*",
+    "rollup.config.ts"],
   "exclude": [
     "node_modules",
     "dist",
-    "test/*.spec.ts"
+    "test",
   ]
 }
