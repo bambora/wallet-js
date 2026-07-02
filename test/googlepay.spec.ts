@@ -1,44 +1,29 @@
-import 'mocha'
-import * as chai from 'chai'
-import * as chaiAsPromised from 'chai-as-promised'
-import * as chaiSpies from 'chai-spies'
-import { JSDOM } from 'jsdom'
+import GooglePay from '../src/clients/googlepay.ts'
+import loadScript from '../src/utils/load-script.ts'
 
-import GooglePay, { IGooglePayCallbackResponse, IGooglePaySessionData } from '../src/clients/googlepay.ts'
-import * as loadScript from '../src/utils/load-script.ts'
-import { Session } from '../src/wallet'
+import { expect, spy } from './setup/chai-setup.ts'
 
-const expect = chai.expect
-chai.use(chaiAsPromised)
-chai.use(chaiSpies)
-const sandbox = chai.spy.sandbox()
-
-const dom = new JSDOM('<!DOCTYPE html>')
-const document = dom.window.document
-
-declare global {
-  // eslint-disable-next-line @typescript-eslint/no-namespace
-  namespace NodeJS {
-    interface Global {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      window: any
-    }
-  }
-}
+import type { IGooglePayCallbackResponse, IGooglePaySessionData } from '../src/clients/googlepay.ts'
+import type { Session } from '../src/wallet'
 
 describe('Google Pay', () => {
-  let loadScriptSpy
+  let loadScriptSpy: ReturnType<typeof spy.on>
 
   beforeEach(() => {
-    global.window = {}
-
-    loadScriptSpy = sandbox.on(loadScript, 'loadScript', () => {
-      global.window = { google: { payments: { api: { PaymentsClient: PaymentsClient } } } }
+    loadScriptSpy = spy.on(loadScript, 'load', () => {
+      window.google = {
+        payments: {
+          api: {
+            PaymentsClient: PaymentsClient,
+          },
+        },
+      } as never
     })
   })
 
   afterEach(() => {
-    sandbox.restore()
+    window.google = undefined as never
+    spy.restore()
   })
 
   describe('#create()', () => {
@@ -58,15 +43,17 @@ describe('Google Pay', () => {
         )
 
         expect(googlePay).to.be.instanceOf(GooglePay)
-        expect(loadScriptSpy).to.have.been.called.once
-        expect(googlePay.client['paymentOptions']['environment']).to.be.eq(data.expected)
+        expect(loadScriptSpy).to.be.called.once
+        const paymentOptions = (googlePay.client as unknown as { paymentOptions: { environment: string } })
+          .paymentOptions
+        expect(paymentOptions.environment).to.be.eq(data.expected)
       })
     })
 
     it('should throw an error due to missing configuration', async () => {
-      expect(GooglePay.create({} as never, undefined as never)).to.eventually.throw(
+      await expect(GooglePay.create({} as never, undefined as never)).to.be.rejectedWith(
         Error,
-        'Configuration must be provided',
+        'Configuration sessionProvider must be implemented',
       )
     })
 
@@ -74,7 +61,7 @@ describe('Google Pay', () => {
       const configuration = {
         sessionProvider: undefined,
       }
-      expect(GooglePay.create({} as never, configuration as never)).to.eventually.throw(
+      await expect(GooglePay.create({} as never, configuration as never)).to.be.rejectedWith(
         Error,
         'Configuration sessionProvider must be implemented',
       )
@@ -92,7 +79,7 @@ describe('Google Pay', () => {
           transactionInfo: {},
         } as never)
 
-        const isReadyToPaySpy = chai.spy.on(
+        const isReadyToPaySpy = spy.on(
           googlePay.client,
           'isReadyToPay',
           async (): Promise<google.payments.api.IsReadyToPayResponse> => {
@@ -113,10 +100,9 @@ describe('Google Pay', () => {
       const googlePay = await GooglePay.create({ sessionProvider: {} as never }, {} as never)
 
       const button = document.createElement('button')
-      const createButtonSpy = chai.spy.on(googlePay.client, 'createButton', (): HTMLElement => button)
+      const createButtonSpy = spy.on(googlePay.client, 'createButton', (): HTMLElement => button)
 
       const buttonOptions: google.payments.api.ButtonOptions = {
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
         onClick: () => {},
       }
       const container = document.createElement('div')
@@ -134,7 +120,7 @@ describe('Google Pay', () => {
       const walletSession: Session<IGooglePaySessionData> = {
         data: { Identifier: '123', CallbackUrl: 'https://google.com/callback' },
       }
-      const sessionProviderLike = chai.spy.interface({
+      const sessionProviderLike = spy.interface({
         fetchSession: async (): Promise<Session<IGooglePaySessionData>> => walletSession,
       })
 
@@ -147,9 +133,9 @@ describe('Google Pay', () => {
           transactionState: 'SUCCESS',
         },
       }
-      const authorizeProviderLike = chai.spy.interface({
+      const authorizeProviderLike = spy.interface({
         authorizePayment: async (): Promise<IGooglePayCallbackResponse> => authorizeResult,
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         stepUp: async (): Promise<void> => {},
       })
 
@@ -172,7 +158,7 @@ describe('Google Pay', () => {
           },
         },
       }
-      const loadPaymentDataSpy = chai.spy.on(
+      const loadPaymentDataSpy = spy.on(
         googlePay.client,
         'loadPaymentData',
         async (): Promise<google.payments.api.PaymentData> => {
@@ -186,12 +172,16 @@ describe('Google Pay', () => {
       expect(googlePay).to.be.instanceOf(GooglePay)
       expect(loadPaymentDataSpy).to.be.called.once
       expect(authorizeProviderLike.authorizePayment).to.be.called.once
-      expect(authorizeProviderLike.authorizePayment).to.be.called.with.exactly(walletSession, paymentData)
+      expect(authorizeProviderLike.authorizePayment).to.called.with(walletSession, paymentData)
       expect(authorizeProviderLike.stepUp).to.not.be.called.once
     })
 
     it('should start a Google Pay session with step up', async () => {
-      const sessionProviderLike = chai.spy.interface('sessionProvider', ['fetchSession'])
+      const sessionProviderLike = spy.interface({
+        fetchSession: async (): Promise<Session<IGooglePaySessionData>> => {
+          return {} as never
+        },
+      })
 
       const authorizeResult: IGooglePayCallbackResponse = {
         authorizeResult: undefined,
@@ -202,9 +192,9 @@ describe('Google Pay', () => {
           transactionState: 'SUCCESS',
         },
       }
-      const authorizeProviderLike = chai.spy.interface({
+      const authorizeProviderLike = spy.interface({
         authorizePayment: async (): Promise<IGooglePayCallbackResponse> => authorizeResult,
-        // eslint-disable-next-line @typescript-eslint/no-empty-function
+
         stepUp: async (): Promise<void> => {},
       })
 
@@ -216,7 +206,7 @@ describe('Google Pay', () => {
         { allowedPaymentMethods: [], transactionInfo: {} } as never,
       )
 
-      const loadPaymentDataSpy = chai.spy.on(
+      const loadPaymentDataSpy = spy.on(
         googlePay.client,
         'loadPaymentData',
         async (): Promise<google.payments.api.PaymentData> => {
@@ -231,7 +221,7 @@ describe('Google Pay', () => {
       expect(loadPaymentDataSpy).to.be.called.once
       expect(authorizeProviderLike.authorizePayment).to.be.called.once
       expect(authorizeProviderLike.stepUp).to.be.called.once
-      expect(authorizeProviderLike.stepUp).to.be.called.with.exactly(authorizeResult)
+      expect(authorizeProviderLike.stepUp).to.be.called.with(authorizeResult)
     })
   })
 })
@@ -239,8 +229,7 @@ describe('Google Pay', () => {
 class PaymentsClient {
   public paymentOptions
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  constructor(paymentOptions: any) {
+  constructor(paymentOptions: never) {
     this.paymentOptions = paymentOptions
   }
 }

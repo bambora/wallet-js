@@ -1,0 +1,5 @@
+{
+  "require": ["tsx/cjs", "jsdom-global/register"],
+  "spec": "test/**/*.spec.ts",
+  "timeout": 10000
+}

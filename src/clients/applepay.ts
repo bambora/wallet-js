@@ -1,4 +1,4 @@
-import { loadScript } from '../utils/load-script'
+import loadScript from '../utils/load-script'
 import {
   IAuthorizeProvider,
   IAuthorizeResult,
@@ -39,6 +39,12 @@ export default class ApplePay
     this.clientConfiguration = configuration.clientConfiguration
   }
 
+  /**
+   * Create a new ApplePay object to handle an Apple Pay session
+   * @param {IDirectConfiguration<IApplePayClientConfiguration, IApplePaySessionData, ApplePayJS.ApplePayPayment, IApplePayCallbackResponse, IAuthorizeProvider<IApplePaySessionData, ApplePayJS.ApplePayPayment, IApplePayCallbackResponse>} configuration - The configuration for the Apple Pay session, including session and authorize providers, client configuration etc.
+   * @param {IApplePayData} data - The ApplePayData used for the Apple Pay session
+   * @returns {Promise<ApplePay>} Promise object with the created ApplePay object
+   */
   public static async create(
     configuration: IDirectConfiguration<
       IApplePayClientConfiguration,
@@ -56,30 +62,36 @@ export default class ApplePay
     return applePay
   }
 
-  private init = async (data: IApplePayData) => {
-    await loadScript('https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js')
+  /**
+   * Checks if the device supports Apple Pay payments, using {@link https://developer.apple.com/documentation/applepayontheweb/applepaysession/canmakepayments|canmakepayments}
+   * @returns {Promise<boolean>} true if device supports Apple Pay, and false if not
+   */
+  public isAvailable = async (): Promise<boolean> =>
+    Promise.resolve(this.checkApplePaySession() && window.ApplePaySession.canMakePayments())
 
-    this.applePaySessionData = data
-  }
-
-  public isAvailable = async () => {
-    if (!window.ApplePaySession || !window.ApplePaySession.supportsVersion(3)) {
-      return false
+  /**
+   * Checks the Apple Pay capabilities on the device, using {@link https://developer.apple.com/documentation/applepayontheweb/applepaysession/applepaycapabilities|applepaycapabilities}
+   * @returns {Promise<ApplePayJS.PaymentCredentialStatus>} Promise object with {@link https://developer.apple.com/documentation/applepayontheweb/paymentcredentialstatus|paymentcredentialstatus}
+   */
+  public isCapable = async (): Promise<ApplePayJS.PaymentCredentialStatus> => {
+    if (!this.checkApplePaySession()) {
+      throw new Error('ApplePaySession not available')
     }
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const response = await window.ApplePaySession.applePayCapabilities(
-      this.clientConfiguration?.merchantId ?? 'platformintegrator.worldline-online-checkout-prod',
-    )
-    const status = response.paymentCredentialStatus
 
-    return (
-      status == 'paymentCredentialStatusAvailable' ||
-      status == 'paymentCredentialStatusUnknown' ||
-      status == 'paymentCredentialsUnavailable'
-    )
+    if (!this.clientConfiguration?.merchantId) {
+      throw new Error('clientConfiguration.merchantId not provided')
+    }
+
+    const response = await window.ApplePaySession.applePayCapabilities(this.clientConfiguration.merchantId)
+    return response.paymentCredentialStatus
   }
 
-  public createButton = (container: HTMLElement, options: ButtonOptions) => {
+  /**
+   * Creates an apple-pay-button with optional overrides for buttonstyle, type and locale. See {@link https://developer.apple.com/documentation/applepayontheweb/displaying-apple-pay-buttons-using-javascript#Display-the-Button|Display-the-Button} for more
+   * @param {HTMLElement} container - The container that the button will be appended to
+   * @param {ButtonOptions} options - The options used for the button, including onClick event handler and optional styling options
+   */
+  public createButton = (container: HTMLElement, options: ButtonOptions): void => {
     const button = document.createElement('apple-pay-button')
     button.addEventListener('click', options.onClick)
 
@@ -96,6 +108,10 @@ export default class ApplePay
     container.appendChild(button)
   }
 
+  /**
+   * Start the Apple Pay session to initiate the Apple Pay payment sheet for payment authorization
+   * @returns {Promise<IAuthorizeResult>} Promise object with the authorize result of the Apple Pay session
+   */
   public override start = async (): Promise<IAuthorizeResult> => {
     return new Promise((resolve, reject) => {
       if (!window.ApplePaySession) throw new Error('ApplePaySession not available')
@@ -114,6 +130,7 @@ export default class ApplePay
         } catch (error) {
           applePaySession.abort()
           reject(error)
+          return
         }
 
         applePaySession.completeMerchantValidation(JSON.parse(walletSession.data.PaymentSession))
@@ -122,12 +139,10 @@ export default class ApplePay
       applePaySession.onpaymentauthorized = async (event: ApplePayJS.ApplePayPaymentAuthorizedEvent) => {
         const authorizePaymentResponse = await this.authorizeProvider.authorizePayment(walletSession, event.payment)
 
-        /* eslint-disable @typescript-eslint/no-non-null-assertion */
         const authorizeResult =
-          authorizePaymentResponse.authorizeResult ?? authorizePaymentResponse.wait
+          (authorizePaymentResponse.authorizeResult ?? authorizePaymentResponse.wait)
             ? window.ApplePaySession!.STATUS_SUCCESS
             : window.ApplePaySession!.STATUS_FAILURE
-        /* eslint-enable @typescript-eslint/no-non-null-assertion */
 
         applePaySession.completePayment(authorizeResult)
 
@@ -139,11 +154,21 @@ export default class ApplePay
       applePaySession.begin()
     })
   }
+
+  private init = async (data: IApplePayData): Promise<void> => {
+    await loadScript.load('https://applepay.cdn-apple.com/jsapi/1.latest/apple-pay-sdk.js')
+
+    this.applePaySessionData = data
+  }
+
+  private checkApplePaySession = (): boolean => !!window.ApplePaySession && window.ApplePaySession.supportsVersion(3)
 }
 
-export class DefaultApplePayAuthorizeProvider
-  implements IAuthorizeProvider<IApplePaySessionData, ApplePayJS.ApplePayPayment, IApplePayCallbackResponse>
-{
+export class DefaultApplePayAuthorizeProvider implements IAuthorizeProvider<
+  IApplePaySessionData,
+  ApplePayJS.ApplePayPayment,
+  IApplePayCallbackResponse
+> {
   async authorizePayment(
     walletSession: Session<IApplePaySessionData>,
     data: ApplePayJS.ApplePayPayment,
